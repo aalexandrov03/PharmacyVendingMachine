@@ -8,15 +8,18 @@
         <version>2.6.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
+
+    <groupId>com.elsys</groupId>
     <artifactId>GlobalServerSoftware</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>GlobalServerSoftware</name>
     <description>GlobalServerSoftware</description>
+
     <properties>
         <java.version>11</java.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -50,6 +53,7 @@
     </dependencies>
 
     <build>
+        <finalName>globalserver</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
