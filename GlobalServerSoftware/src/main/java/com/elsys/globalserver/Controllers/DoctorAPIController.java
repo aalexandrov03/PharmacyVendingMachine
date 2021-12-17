@@ -23,11 +23,11 @@ public class DoctorAPIController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerDoctor(@RequestBody Doctor doctor) {
-        boolean registered = doctorsService.register(doctor);
+    public ResponseEntity<?> registerDoctor(@RequestBody Doctor doctor, @RequestHeader String uin) {
+        boolean registered = doctorsService.register(doctor, uin);
 
         if (!registered)
-            return ResponseEntity.status(HttpStatus.FOUND).build();
+            return ResponseEntity.status(500).build();
 
         return ResponseEntity.ok().build();
     }

@@ -2,13 +2,17 @@ package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DB_Entities.*;
 import com.elsys.globalserver.DataAccess.*;
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlTable;
+import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
+import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -39,7 +43,7 @@ public class DoctorsService {
                 .collect(Collectors.toList());
     }
 
-    public boolean register(Doctor doctor_data) {
+    public boolean register(Doctor doctor_data, String uin) {
         Iterable<Doctor> doctors = doctorRepository.findAll();
 
         boolean username_available = true;
@@ -51,8 +55,10 @@ public class DoctorsService {
         }
 
         if (username_available) {
-            doctorRepository.save(doctor_data);
-            return true;
+            if(checkDoctor(doctor_data, uin)){
+                doctorRepository.save(doctor_data);
+                return true;
+            }
         }
 
         return false;
@@ -114,5 +120,27 @@ public class DoctorsService {
 
     public void reportBug(Bug bug) {
         bugsRepository.save(bug);
+    }
+
+    private boolean checkDoctor(Doctor doctor, String uin){
+        WebClient client = new WebClient(BrowserVersion.CHROME);
+        client.getOptions().setCssEnabled(false);
+        client.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        client.getOptions().setThrowExceptionOnScriptError(false);
+        client.getOptions().setPrintContentOnFailingStatusCode(false);
+
+        HtmlPage page;
+        try {
+             page = client.getPage("https://blsbg.eu/bg/medics/search?DocSearch[uin]="+uin);
+        } catch (IOException e) {
+            return false;
+        }
+        HtmlTable node = (HtmlTable) page.getByXPath("//table[@class='items']").get(0);
+
+        if (node.getRowCount() == 1)
+            return false;
+
+        String name = node.getRow(1).getCell(2).asNormalizedText();
+        return name.equals(doctor.getFullName());
     }
 }
