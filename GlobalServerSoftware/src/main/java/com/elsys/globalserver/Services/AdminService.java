@@ -2,8 +2,10 @@ package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DB_Entities.Bug;
 import com.elsys.globalserver.DB_Entities.Medicine;
+import com.elsys.globalserver.DB_Entities.Prescription;
 import com.elsys.globalserver.DataAccess.BugsRepository;
 import com.elsys.globalserver.DataAccess.MedicinesRepository;
+import com.elsys.globalserver.DataAccess.PrescriptionsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +18,15 @@ import java.util.stream.StreamSupport;
 public class AdminService {
     private final MedicinesRepository medicinesRepository;
     private final BugsRepository bugsRepository;
+    private final PrescriptionsRepository prescriptionsRepository;
 
     @Autowired
-    public AdminService(MedicinesRepository medicinesRepository, BugsRepository bugsRepository) {
+    public AdminService(MedicinesRepository medicinesRepository,
+                        BugsRepository bugsRepository,
+                        PrescriptionsRepository prescriptionsRepository) {
         this.medicinesRepository = medicinesRepository;
         this.bugsRepository = bugsRepository;
+        this.prescriptionsRepository = prescriptionsRepository;
     }
 
     public boolean addMedicine(Medicine medicine) {
@@ -31,6 +37,16 @@ public class AdminService {
                 return false;
 
         medicinesRepository.save(medicine);
+        return true;
+    }
+
+    public boolean deletePrescription(int prescription_id){
+        Optional<Prescription> prescription = prescriptionsRepository.findById(prescription_id);
+
+        if (prescription.isEmpty())
+            return false;
+
+        prescriptionsRepository.deleteById(prescription_id);
         return true;
     }
 

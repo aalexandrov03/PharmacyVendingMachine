@@ -37,6 +37,16 @@ public class AdminAPIController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/prescription")
+    public ResponseEntity<?> deletePrescription(@RequestParam int prescription_id){
+        boolean deleted = adminService.deletePrescription(prescription_id);
+
+        if (!deleted)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/medicine")
     public ResponseEntity<?> deleteMedicine(@RequestParam int medicine_id) {
         boolean deleted = adminService.deleteMedicine(medicine_id);
