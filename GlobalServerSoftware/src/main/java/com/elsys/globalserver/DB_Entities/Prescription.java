@@ -2,7 +2,6 @@ package com.elsys.globalserver.DB_Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
 @Getter
 @Setter
 public class Prescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
+    private boolean valid;
     @ManyToOne
     @JoinColumn(name = "doctor_id")
     @JsonIgnore
@@ -32,6 +32,10 @@ public class Prescription {
             inverseJoinColumns = @JoinColumn(name = "prescription_id")
     )
     private List<Medicine> medicines = new ArrayList<>();
+
+    public Prescription(){
+        this.valid = true;
+    }
 
     public Prescription(Doctor doctor, CasualUser user) {
         this.doctor = doctor;

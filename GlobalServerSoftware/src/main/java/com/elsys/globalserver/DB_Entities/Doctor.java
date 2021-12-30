@@ -19,6 +19,8 @@ public class Doctor {
     private int id;
     @Column(nullable = false)
     private String fullName;
+    @Column(nullable = false)
+    private String uin;
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
@@ -29,8 +31,9 @@ public class Doctor {
     @JsonIgnore
     private Set<Prescription> prescriptions = new HashSet<>();
 
-    public Doctor(String fullName, String username, String password, String workplace) {
+    public Doctor(String fullName, String uin, String username, String password, String workplace) {
         this.fullName = fullName;
+        this.uin = uin;
         this.username = username;
         this.password = password;
         this.workplace = workplace;

@@ -43,38 +43,20 @@ public class DoctorsService {
                 .collect(Collectors.toList());
     }
 
-    public boolean register(Doctor doctor_data, String uin) {
-        Iterable<Doctor> doctors = doctorRepository.findAll();
+    public boolean register(Doctor doctor_data) {
+        Optional<Doctor> doctor = doctorRepository.findByUsername(doctor_data.getUsername());
+        if (doctor.isPresent())
+            return false;
 
-        boolean username_available = true;
-        for (Doctor doctor : doctors) {
-            if (doctor_data.getUsername().equals(doctor.getUsername())) {
-                username_available = false;
-                break;
-            }
-        }
+        boolean status = checkDoctor(doctor_data);
+        if (status)
+            doctorRepository.save(doctor_data);
 
-        if (username_available) {
-            if(checkDoctor(doctor_data, uin)){
-                doctorRepository.save(doctor_data);
-                return true;
-            }
-        }
-
-        return false;
+        return status;
     }
 
-    public Doctor login(String username, String password) {
-        Iterable<Doctor> doctors = doctorRepository.findAll();
-
-        for (Doctor doctor : doctors) {
-            if (doctor.getUsername().equals(username)
-                    && doctor.getPassword().equals(password)) {
-                return doctor;
-            }
-        }
-
-        return null;
+    public Optional<Doctor> login(String username, String password) {
+        return doctorRepository.findByUsernameAndPassword(username, password);
     }
 
     public boolean addPrescription(String username,
@@ -122,7 +104,7 @@ public class DoctorsService {
         bugsRepository.save(bug);
     }
 
-    private boolean checkDoctor(Doctor doctor, String uin){
+    private boolean checkDoctor(Doctor doctor){
         WebClient client = new WebClient(BrowserVersion.CHROME);
         client.getOptions().setCssEnabled(false);
         client.getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -131,7 +113,7 @@ public class DoctorsService {
 
         HtmlPage page;
         try {
-             page = client.getPage("https://blsbg.eu/bg/medics/search?DocSearch[uin]="+uin);
+             page = client.getPage("https://blsbg.eu/bg/medics/search?DocSearch[uin]="+doctor.getUin());
         } catch (IOException e) {
             return false;
         }

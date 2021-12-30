@@ -24,35 +24,17 @@ public class CasualUsersService {
     }
 
     public boolean register(CasualUser user_data) {
-        Iterable<CasualUser> casual_users = casualUserRepository.findAll();
+        Optional<CasualUser> user = casualUserRepository.findByUsername(user_data.getUsername());
 
-        boolean username_available = true;
-        for (CasualUser casual_user : casual_users) {
-            if (casual_user.getUsername().equals(user_data.getUsername())) {
-                username_available = false;
-                break;
-            }
-        }
+        if (user.isPresent())
+            return false;
 
-        if (username_available) {
-            casualUserRepository.save(user_data);
-            return true;
-        }
-
-        return false;
+        casualUserRepository.save(user_data);
+        return true;
     }
 
-    public CasualUser login(String username, String password) {
-        Iterable<CasualUser> users = casualUserRepository.findAll();
-
-        for (CasualUser user : users) {
-            if (user.getUsername().equals(username)
-                    && user.getPassword().equals(password)) {
-                return user;
-            }
-        }
-
-        return null;
+    public Optional<CasualUser> login(String username, String password) {
+        return casualUserRepository.findByUsernameAndPassword(username, password);
     }
 
     public Set<Prescription> getAllUserPrescriptions(int user_id) {

@@ -17,17 +17,17 @@ public class AdminAPIController {
         this.adminService = adminService;
     }
 
-    @GetMapping("/getMedicines")
+    @GetMapping("/medicines")
     public ResponseEntity<?> getMedicines() {
         return ResponseEntity.ok().body(adminService.getMedicines());
     }
 
-    @GetMapping("/getBugs")
+    @GetMapping("/bugs")
     public ResponseEntity<?> getBugs() {
         return ResponseEntity.ok().body(adminService.getBugs());
     }
 
-    @PostMapping("/addMedicine")
+    @PostMapping("/medicine")
     public ResponseEntity<?> addMedicine(@RequestBody Medicine medicine) {
         boolean added = adminService.addMedicine(medicine);
 
@@ -37,8 +37,8 @@ public class AdminAPIController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/deleteMedicine")
-    public ResponseEntity<?> deleteMedicine(@RequestHeader(name = "MED_ID") int medicine_id) {
+    @DeleteMapping("/medicine")
+    public ResponseEntity<?> deleteMedicine(@RequestParam int medicine_id) {
         boolean deleted = adminService.deleteMedicine(medicine_id);
 
         if (!deleted)
@@ -47,8 +47,8 @@ public class AdminAPIController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/clearBug")
-    public ResponseEntity<?> clearBug(@RequestHeader(name = "BUG_ID") int bug_id) {
+    @DeleteMapping("/bug")
+    public ResponseEntity<?> clearBug(@RequestParam int bug_id) {
         boolean deleted = adminService.clearBug(bug_id);
 
         if (!deleted)

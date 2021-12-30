@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface CasualUserRepository extends CrudRepository<CasualUser, Integer> {
     Optional<CasualUser> findByUsername(String username);
+    Optional<CasualUser> findByUsernameAndPassword(String username, String password);
 }

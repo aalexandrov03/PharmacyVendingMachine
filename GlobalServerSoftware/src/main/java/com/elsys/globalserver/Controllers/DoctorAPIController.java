@@ -1,15 +1,16 @@
 package com.elsys.globalserver.Controllers;
 
 import com.elsys.globalserver.DB_Entities.Bug;
-import com.elsys.globalserver.Services.DoctorsService;
 import com.elsys.globalserver.DB_Entities.Doctor;
 import com.elsys.globalserver.DB_Entities.Prescription;
+import com.elsys.globalserver.Services.DoctorsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -23,8 +24,8 @@ public class DoctorAPIController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerDoctor(@RequestBody Doctor doctor, @RequestHeader String uin) {
-        boolean registered = doctorsService.register(doctor, uin);
+    public ResponseEntity<?> registerDoctor(@RequestBody Doctor doctor) {
+        boolean registered = doctorsService.register(doctor);
 
         if (!registered)
             return ResponseEntity.status(500).build();
@@ -33,19 +34,19 @@ public class DoctorAPIController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestHeader String username,
-                                   @RequestHeader String password) {
-        Doctor doctor = doctorsService.login(username, password);
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+        Optional<Doctor> doctor = doctorsService.login(request.get("username"),
+                                                       request.get("password"));
 
-        if (doctor == null)
+        if (doctor.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok().body(doctor);
+        return ResponseEntity.ok().body(doctor.get().getId());
     }
 
-    @PostMapping("/addPrescription")
-    public ResponseEntity<?> addPrescription(@RequestHeader String username,
-                                             @RequestHeader int doctor_id,
+    @PostMapping("/prescription")
+    public ResponseEntity<?> addPrescription(@RequestParam int doctor_id,
+                                             @RequestParam String username,
                                              @RequestBody List<Integer> med_ids) {
         boolean status = doctorsService.addPrescription(username, doctor_id, med_ids);
 
@@ -55,19 +56,13 @@ public class DoctorAPIController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/deletePrescription")
-    public ResponseEntity<?> deletePrescription(@RequestHeader int prescription_id) {
-        doctorsService.deletePrescription(prescription_id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/getPrescriptions")
-    public ResponseEntity<?> getPrescriptions(@RequestHeader int doctor_id) {
+    @GetMapping("/prescriptions")
+    public ResponseEntity<?> getPrescriptions(@RequestParam int doctor_id) {
         Set<Prescription> prescriptions = doctorsService.getDoctorPrescriptions(doctor_id);
         return ResponseEntity.ok().body(prescriptions);
     }
 
-    @GetMapping("/getMedicines")
+    @GetMapping("/medicines")
     public ResponseEntity<?> getMedicines() {
         return ResponseEntity.ok().body(doctorsService.getAllMedicines());
     }

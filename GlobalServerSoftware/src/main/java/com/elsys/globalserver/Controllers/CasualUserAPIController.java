@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -32,18 +34,18 @@ public class CasualUserAPIController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestHeader String username,
-                                   @RequestHeader String password) {
-        CasualUser user = casualUsersService.login(username, password);
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+        Optional<CasualUser> user = casualUsersService.login(request.get("username"),
+                                                             request.get("password"));
 
-        if (user == null)
+        if (user.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok().body(user);
+        return ResponseEntity.ok().body(user.get().getId());
     }
 
-    @GetMapping("/getPrescriptions")
-    public ResponseEntity<?> getPrescriptions(@RequestHeader int user_id) {
+    @GetMapping("/prescriptions")
+    public ResponseEntity<?> getPrescriptions(@RequestParam int user_id) {
         Set<Prescription> prescriptions = casualUsersService.getAllUserPrescriptions(user_id);
         return ResponseEntity.ok().body(prescriptions);
     }

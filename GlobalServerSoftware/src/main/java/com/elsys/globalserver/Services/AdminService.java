@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -34,15 +35,13 @@ public class AdminService {
     }
 
     public boolean deleteMedicine(int medicine_id) {
-        Iterable<Medicine> medicines = medicinesRepository.findAll();
+        Optional<Medicine> medicine = medicinesRepository.findById(medicine_id);
 
-        for (Medicine m : medicines)
-            if (medicine_id == m.getId()) {
-                medicinesRepository.deleteById(medicine_id);
-                return true;
-            }
+        if (medicine.isEmpty())
+            return false;
 
-        return false;
+        medicinesRepository.deleteById(medicine_id);
+        return true;
     }
 
     public List<Medicine> getMedicines() {
@@ -58,14 +57,12 @@ public class AdminService {
     }
 
     public boolean clearBug(int bug_id) {
-        Iterable<Bug> bugs = bugsRepository.findAll();
+        Optional<Bug> bug = bugsRepository.findById(bug_id);
 
-        for (Bug bug : bugs)
-            if (bug_id == bug.getId()) {
-                bugsRepository.deleteById(bug_id);
-                return true;
-            }
+        if (bug.isEmpty())
+            return false;
 
-        return false;
+        bugsRepository.deleteById(bug_id);
+        return true;
     }
 }
