@@ -50,7 +50,7 @@ public class CasualUserAPIController {
         return ResponseEntity.ok().body(prescriptions);
     }
 
-    @PostMapping("/submitBug")
+    @PostMapping("/bug")
     public ResponseEntity<?> submitBug(@RequestBody Bug bug) {
         casualUsersService.reportBug(bug);
         return ResponseEntity.ok().build();

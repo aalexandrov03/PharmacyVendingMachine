@@ -67,7 +67,7 @@ public class DoctorAPIController {
         return ResponseEntity.ok().body(doctorsService.getAllMedicines());
     }
 
-    @PostMapping("/submitBug")
+    @PostMapping("/bug")
     public ResponseEntity<?> submitBug(@RequestBody Bug bug) {
         doctorsService.reportBug(bug);
         return ResponseEntity.ok().build();
