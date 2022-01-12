@@ -21,6 +21,7 @@ target/
 mvnw
 mvnw.cmd
 .mvn
+.jython_cache
 
 ### NetBeans ###
 /nbproject/private/
