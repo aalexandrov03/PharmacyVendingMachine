@@ -2,83 +2,50 @@ package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DB_Entities.Bug;
 import com.elsys.globalserver.DB_Entities.Medicine;
-import com.elsys.globalserver.DB_Entities.Prescription;
-import com.elsys.globalserver.DataAccess.BugsRepository;
-import com.elsys.globalserver.DataAccess.MedicinesRepository;
-import com.elsys.globalserver.DataAccess.PrescriptionsRepository;
+import com.elsys.globalserver.Services.Microservices.BugService;
+import com.elsys.globalserver.Services.Microservices.MedicineService;
+import com.elsys.globalserver.Services.Microservices.PrescriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class AdminService {
-    private final MedicinesRepository medicinesRepository;
-    private final BugsRepository bugsRepository;
-    private final PrescriptionsRepository prescriptionsRepository;
+    private final MedicineService medicineService;
+    private final PrescriptionService prescriptionService;
+    private final BugService bugService;
 
     @Autowired
-    public AdminService(MedicinesRepository medicinesRepository,
-                        BugsRepository bugsRepository,
-                        PrescriptionsRepository prescriptionsRepository) {
-        this.medicinesRepository = medicinesRepository;
-        this.bugsRepository = bugsRepository;
-        this.prescriptionsRepository = prescriptionsRepository;
+    public AdminService(MedicineService medicineService,
+                        PrescriptionService prescriptionService,
+                        BugService bugService){
+        this.medicineService = medicineService;
+        this.prescriptionService = prescriptionService;
+        this.bugService = bugService;
     }
 
     public boolean addMedicine(Medicine medicine) {
-        Iterable<Medicine> medicines = medicinesRepository.findAll();
-
-        for (Medicine m : medicines)
-            if (medicine.equals(m))
-                return false;
-
-        medicinesRepository.save(medicine);
-        return true;
+        return medicineService.addMedicine(medicine);
     }
 
     public boolean deletePrescription(int prescription_id){
-        Optional<Prescription> prescription = prescriptionsRepository.findById(prescription_id);
-
-        if (prescription.isEmpty())
-            return false;
-
-        prescriptionsRepository.deleteById(prescription_id);
-        return true;
+        return prescriptionService.deletePrescription(prescription_id);
     }
 
     public boolean deleteMedicine(int medicine_id) {
-        Optional<Medicine> medicine = medicinesRepository.findById(medicine_id);
-
-        if (medicine.isEmpty())
-            return false;
-
-        medicinesRepository.deleteById(medicine_id);
-        return true;
+        return medicineService.deleteMedicine(medicine_id);
     }
 
     public List<Medicine> getMedicines() {
-        Iterable<Medicine> medicines = medicinesRepository.findAll();
-        return StreamSupport.stream(medicines.spliterator(), false)
-                .collect(Collectors.toList());
+        return medicineService.getMedicines();
     }
 
     public List<Bug> getBugs() {
-        Iterable<Bug> bugs = bugsRepository.findAll();
-        return StreamSupport.stream(bugs.spliterator(), false)
-                .collect(Collectors.toList());
+        return bugService.getBugs();
     }
 
     public boolean clearBug(int bug_id) {
-        Optional<Bug> bug = bugsRepository.findById(bug_id);
-
-        if (bug.isEmpty())
-            return false;
-
-        bugsRepository.deleteById(bug_id);
-        return true;
+        return bugService.clearBug(bug_id);
     }
 }
