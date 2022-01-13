@@ -72,4 +72,14 @@ public class DoctorAPIController {
         doctorsService.reportBug(bug);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/invalidate")
+    public ResponseEntity<?> invalidatePrescription(@RequestParam int prescription_id){
+        boolean status = doctorsService.invalidatePrescription(prescription_id);
+
+        if (!status)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok().build();
+    }
 }

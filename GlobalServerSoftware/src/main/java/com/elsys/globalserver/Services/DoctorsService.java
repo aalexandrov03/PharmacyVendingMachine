@@ -125,4 +125,15 @@ public class DoctorsService {
         String name = node.getRow(1).getCell(2).asNormalizedText();
         return name.equals(doctor.getFullName());
     }
+
+    public boolean invalidatePrescription(int prescription_id){
+        Optional<Prescription> prescription = prescriptionsRepository.findById(prescription_id);
+
+        if (prescription.isEmpty())
+            return false;
+
+        prescription.get().setValid(false);
+        prescriptionsRepository.save(prescription.get());
+        return true;
+    }
 }
