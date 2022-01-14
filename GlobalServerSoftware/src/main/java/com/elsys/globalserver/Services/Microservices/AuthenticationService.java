@@ -1,7 +1,9 @@
 package com.elsys.globalserver.Services.Microservices;
 
+import com.elsys.globalserver.DB_Entities.Admin;
 import com.elsys.globalserver.DB_Entities.CasualUser;
 import com.elsys.globalserver.DB_Entities.Doctor;
+import com.elsys.globalserver.DataAccess.AdminRepository;
 import com.elsys.globalserver.DataAccess.CasualUserRepository;
 import com.elsys.globalserver.DataAccess.DoctorRepository;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
@@ -18,12 +20,15 @@ import java.util.Optional;
 public class AuthenticationService {
     private final CasualUserRepository casualUserRepository;
     private final DoctorRepository doctorRepository;
+    private final AdminRepository adminRepository;
 
     @Autowired
     public AuthenticationService(CasualUserRepository casualUserRepository,
-                                 DoctorRepository doctorRepository) {
+                                 DoctorRepository doctorRepository,
+                                 AdminRepository adminRepository) {
         this.casualUserRepository = casualUserRepository;
         this.doctorRepository = doctorRepository;
+        this.adminRepository = adminRepository;
     }
 
     public boolean registerCasualUser(CasualUser user_data) {
@@ -76,5 +81,18 @@ public class AuthenticationService {
 
         String name = node.getRow(1).getCell(2).asNormalizedText();
         return name.equals(doctor.getFullName());
+    }
+
+    public boolean registerAdmin(String username, String password){
+        if (adminRepository.findByUsernameAndPassword(username, password).isPresent())
+            return false;
+
+        adminRepository.save(new Admin(username, password));
+        return true;
+    }
+
+    public boolean authenticateAdmin(String username, String password){
+        Optional<Admin> admin = adminRepository.findByUsernameAndPassword(username, password);
+        return admin.isPresent();
     }
 }

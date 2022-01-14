@@ -1,7 +1,9 @@
 package com.elsys.globalserver.Services;
 
+import com.elsys.globalserver.DB_Entities.Admin;
 import com.elsys.globalserver.DB_Entities.Bug;
 import com.elsys.globalserver.DB_Entities.Medicine;
+import com.elsys.globalserver.Services.Microservices.AuthenticationService;
 import com.elsys.globalserver.Services.Microservices.BugService;
 import com.elsys.globalserver.Services.Microservices.MedicineService;
 import com.elsys.globalserver.Services.Microservices.PrescriptionService;
@@ -15,14 +17,25 @@ public class AdminService {
     private final MedicineService medicineService;
     private final PrescriptionService prescriptionService;
     private final BugService bugService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
     public AdminService(MedicineService medicineService,
                         PrescriptionService prescriptionService,
-                        BugService bugService){
+                        BugService bugService,
+                        AuthenticationService authenticationService){
         this.medicineService = medicineService;
         this.prescriptionService = prescriptionService;
         this.bugService = bugService;
+        this.authenticationService = authenticationService;
+    }
+
+    public boolean registerAdmin(Admin admin){
+        return authenticationService.registerAdmin(admin.getUsername(), admin.getPassword());
+    }
+
+    public boolean authenticateAdmin(Admin admin){
+        return authenticationService.authenticateAdmin(admin.getUsername(), admin.getPassword());
     }
 
     public boolean addMedicine(Medicine medicine) {

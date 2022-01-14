@@ -1,5 +1,6 @@
 package com.elsys.globalserver.Controllers;
 
+import com.elsys.globalserver.DB_Entities.Admin;
 import com.elsys.globalserver.DB_Entities.Medicine;
 import com.elsys.globalserver.Services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,26 @@ public class AdminAPIController {
     @Autowired
     public AdminAPIController(AdminService adminService) {
         this.adminService = adminService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerAdmin(@RequestBody Admin admin){
+        boolean status = adminService.registerAdmin(admin);
+
+        if (status)
+            return ResponseEntity.ok().build();
+
+        return ResponseEntity.status(HttpStatus.FOUND).build();
+    }
+
+    @GetMapping("/authenticate")
+    public ResponseEntity<?> authenticateAdmin(@RequestBody Admin admin){
+        boolean status = adminService.authenticateAdmin(admin);
+
+        if (status)
+            return ResponseEntity.ok().build();
+
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/medicines")
