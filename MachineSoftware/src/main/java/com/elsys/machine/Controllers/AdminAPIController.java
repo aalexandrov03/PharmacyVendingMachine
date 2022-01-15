@@ -1,101 +1,67 @@
 package com.elsys.machine.Controllers;
 
 import com.elsys.machine.Controllers.Utils.ReloadRequest;
-import com.elsys.machine.DB_Entities.Medicine;
-import com.elsys.machine.Services.AdminService.ReloadService;
-import com.elsys.machine.Services.AdminService.StatusService;
-import com.elsys.machine.Services.AdminService.TestService;
+import com.elsys.machine.Services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/admin/api")
 public class AdminAPIController {
-    private final StatusService statusService;
-    private final TestService testService;
-    private final ReloadService reloadService;
+    private final AdminService adminService;
 
     @Autowired
-    public AdminAPIController(StatusService statusService,
-                              TestService testService,
-                              ReloadService reloadService) {
-        this.statusService = statusService;
-        this.testService = testService;
-        this.reloadService = reloadService;
+    public AdminAPIController(AdminService adminService) {
+        this.adminService = adminService;
     }
 
     @GetMapping("/status/history")
-    public ResponseEntity<?> getStatusHistory(){
-        return ResponseEntity.ok().body(statusService.getStatusHistory());
+    public ResponseEntity<?> getStatusHistory() {
+        return ResponseEntity.ok().body(adminService.getStatusHistory());
     }
 
     @GetMapping("/status")
-    public ResponseEntity<?> getLastStatus(){
-        return ResponseEntity.ok().body(statusService.getLastStatus());
+    public ResponseEntity<?> getLastStatus() {
+        return ResponseEntity.ok().body(adminService.getStatus());
     }
 
     @PostMapping("/status")
-    public ResponseEntity<?> setStatus(@RequestBody boolean status){
-        statusService.setStatus(status);
+    public ResponseEntity<?> setStatus(@RequestBody boolean status) {
+        adminService.setStatus(status);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/status/history")
-    public ResponseEntity<?> clearStatusHistory(){
-        statusService.clearStatusHistory();
+    public ResponseEntity<?> clearStatusHistory() {
+        adminService.clearStatusHistory();
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/medicines")
-    public ResponseEntity<?> getMedicines(){
-        return ResponseEntity.ok().body(reloadService.getCurrentMedicines());
+    public ResponseEntity<?> getMedicines() {
+        return ResponseEntity.ok().body(adminService.getAllMedicines());
     }
 
     @GetMapping("/routing")
-    public ResponseEntity<?> getRouting(){
-        return ResponseEntity.ok().body(reloadService.getCurrentRouting());
+    public ResponseEntity<?> getRouting() {
+        return ResponseEntity.ok().body(adminService.getRouting());
     }
 
     @GetMapping("/reload/history")
-    public ResponseEntity<?> getReloadsHistory(){
-        return ResponseEntity.ok().body(reloadService.getReloadsHistory());
+    public ResponseEntity<?> getReloadsHistory() {
+        return ResponseEntity.ok().body(adminService.getReloadHistory());
     }
 
     @DeleteMapping("/reload/history")
-    public ResponseEntity<?> clearReloadsHistory(){
-        reloadService.clearReloadHistory();
+    public ResponseEntity<?> clearReloadsHistory() {
+        adminService.clearReloadHistory();
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reload")
-    public ResponseEntity<?> reloadMachine(@RequestBody ReloadRequest request){
-        reloadService.reloadMachine(request.getMedicines(), request.getRouting());
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/test/history")
-    public ResponseEntity<?> getTestsHistory(){
-        return ResponseEntity.ok().body(testService.getTestsHistory());
-    }
-
-    @DeleteMapping("/test/history")
-    public ResponseEntity<?> clearTestsHistory(){
-        testService.clearTestsHistory();
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/test")
-    public ResponseEntity<?> executeTestPrescription(@RequestBody List<Medicine> test_prescription){
-        testService.executeTestPrescription(test_prescription);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/submit")
-    public ResponseEntity<?> submitResult(@RequestBody boolean result){
-        testService.submitResult(result);
+    public ResponseEntity<?> reloadMachine(@RequestBody ReloadRequest request) {
+        adminService.reload(request.getMedicines(), request.getRouting());
         return ResponseEntity.ok().build();
     }
 }

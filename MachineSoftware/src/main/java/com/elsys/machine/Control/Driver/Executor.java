@@ -10,17 +10,18 @@ import java.util.List;
 public class Executor {
     private static Executor executor = null;
 
-    private Executor() {}
+    private Executor() {
+    }
 
-    public static Executor getExecutor(){
+    public static Executor getExecutor() {
         if (executor == null)
             executor = new Executor();
 
         return executor;
     }
 
-    public void execute(List<RouteNode> route){
-        for (RouteNode node : route){
+    public void execute(List<RouteNode> route) {
+        for (RouteNode node : route) {
             String motor = "Z", dir = "0";
 
             if (node.dir == Direction.UP || node.dir == Direction.RIGHT)
@@ -29,7 +30,7 @@ public class Executor {
             if (node.id == Motor.X)
                 motor = "X";
 
-            String[] args = {"mcontrol.py", motor, String.valueOf(node.steps), dir};
+            String[] args = {"mcontrol.py", "execute", motor, String.valueOf(node.steps), dir};
             PythonInterpreter.initialize(System.getProperties(), System.getProperties(), args);
             PythonInterpreter interpreter = new PythonInterpreter();
             interpreter.execfile(getClass().getResourceAsStream("/mcontrol.py"));
