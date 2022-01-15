@@ -1,4 +1,4 @@
-package com.elsys.machine.Services.AdminService;
+package com.elsys.machine.Services.Microservices;
 
 import com.elsys.machine.DB_Entities.Status;
 import com.elsys.machine.DataAccess.StatusRepository;
@@ -21,8 +21,7 @@ public class StatusService {
 
     public List<Status> getStatusHistory() {
         Iterable<Status> statusHistory = statusRepository.findAll();
-        return StreamSupport.stream(statusHistory.spliterator(), false)
-                .collect(Collectors.toList());
+        return StreamSupport.stream(statusHistory.spliterator(), false).collect(Collectors.toList());
     }
 
     public Status getLastStatus() {

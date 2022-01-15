@@ -1,4 +1,4 @@
-package com.elsys.machine.Services.AdminService;
+package com.elsys.machine.Services.Microservices;
 
 import com.elsys.machine.DB_Entities.Medicine;
 import com.elsys.machine.DB_Entities.Reloads;
