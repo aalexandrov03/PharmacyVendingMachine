@@ -73,7 +73,10 @@ public class AuthenticationService {
             page = client.getPage("https://blsbg.eu/bg/medics/search?DocSearch[uin]="+doctor.getUin());
         } catch (IOException e) {
             return false;
+        } finally{
+            client.close();
         }
+
         HtmlTable node = (HtmlTable) page.getByXPath("//table[@class='items']").get(0);
 
         if (node.getRowCount() == 1)
