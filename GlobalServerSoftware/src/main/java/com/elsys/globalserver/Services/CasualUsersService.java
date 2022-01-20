@@ -1,11 +1,8 @@
 package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DB_Entities.Bug;
-import com.elsys.globalserver.DataAccess.BugsRepository;
-import com.elsys.globalserver.DataAccess.CasualUserRepository;
 import com.elsys.globalserver.DB_Entities.CasualUser;
 import com.elsys.globalserver.DB_Entities.Prescription;
-import com.elsys.globalserver.DataAccess.PrescriptionsRepository;
 import com.elsys.globalserver.Services.Microservices.AuthenticationService;
 import com.elsys.globalserver.Services.Microservices.BugService;
 import com.elsys.globalserver.Services.Microservices.PrescriptionService;
@@ -44,9 +41,5 @@ public class CasualUsersService {
 
     public void reportBug(Bug bug) {
         bugService.reportBug(bug);
-    }
-
-    public boolean invalidatePrescription(int prescription_id){
-        return prescriptionService.invalidatePrescription(prescription_id);
     }
 }
