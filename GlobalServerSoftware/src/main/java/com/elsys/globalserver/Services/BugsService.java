@@ -1,7 +1,8 @@
-package com.elsys.globalserver.Services.Microservices;
+package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DB_Entities.Bug;
 import com.elsys.globalserver.DataAccess.BugsRepository;
+import com.elsys.globalserver.Exceptions.Bugs.BugNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +12,12 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public class BugService {
+public class BugsService {
     private final BugsRepository bugsRepository;
 
     @Autowired
-    public BugService(BugsRepository bugsRepository) {
+    public BugsService(BugsRepository bugsRepository) {
         this.bugsRepository = bugsRepository;
-    }
-
-    public void reportBug(Bug bug) {
-        bugsRepository.save(bug);
     }
 
     public List<Bug> getBugs() {
@@ -29,13 +26,16 @@ public class BugService {
                 .collect(Collectors.toList());
     }
 
-    public boolean clearBug(int bug_id) {
-        Optional<Bug> bug = bugsRepository.findById(bug_id);
+    public void clearBugs(List<Integer> bug_ids) throws BugNotFoundException {
+        for (int id: bug_ids){
+            Optional<Bug> bug = bugsRepository.findById(id);
+            if (bug.isEmpty())
+                throw new BugNotFoundException(id);
+        }
+        bugsRepository.deleteAllById(bug_ids);
+    }
 
-        if (bug.isEmpty())
-            return false;
-
-        bugsRepository.deleteById(bug_id);
-        return true;
+    public void reportBug(Bug bug){
+        bugsRepository.save(bug);
     }
 }

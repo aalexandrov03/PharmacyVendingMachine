@@ -19,7 +19,7 @@ public class Medicine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = false)
     private double price;
@@ -40,5 +40,14 @@ public class Medicine {
     @Override
     public int hashCode() {
         return Objects.hash(name, price, needsPrescription);
+    }
+
+    @Override
+    public String toString() {
+        return "Medicine{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", needsPrescription=" + needsPrescription +
+                '}';
     }
 }

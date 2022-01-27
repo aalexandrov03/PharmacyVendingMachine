@@ -1,11 +1,14 @@
-package com.elsys.globalserver.Services.Microservices;
+package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DB_Entities.Admin;
-import com.elsys.globalserver.DB_Entities.CasualUser;
+import com.elsys.globalserver.DB_Entities.Patient;
 import com.elsys.globalserver.DB_Entities.Doctor;
 import com.elsys.globalserver.DataAccess.AdminRepository;
-import com.elsys.globalserver.DataAccess.CasualUserRepository;
+import com.elsys.globalserver.DataAccess.PatientsRepository;
 import com.elsys.globalserver.DataAccess.DoctorRepository;
+import com.elsys.globalserver.Exceptions.Users.AdminAlreadyExistsException;
+import com.elsys.globalserver.Exceptions.Users.DoctorAlreadyExistsException;
+import com.elsys.globalserver.Exceptions.Users.PatientAlreadyExistsException;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -17,38 +20,37 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Service
-public class AuthenticationService {
-    private final CasualUserRepository casualUserRepository;
+public class UsersService {
+    private final PatientsRepository casualUserRepository;
     private final DoctorRepository doctorRepository;
     private final AdminRepository adminRepository;
 
     @Autowired
-    public AuthenticationService(CasualUserRepository casualUserRepository,
-                                 DoctorRepository doctorRepository,
-                                 AdminRepository adminRepository) {
+    public UsersService(PatientsRepository casualUserRepository,
+                        DoctorRepository doctorRepository,
+                        AdminRepository adminRepository) {
         this.casualUserRepository = casualUserRepository;
         this.doctorRepository = doctorRepository;
         this.adminRepository = adminRepository;
     }
 
-    public boolean registerCasualUser(CasualUser user_data) {
-        Optional<CasualUser> user = casualUserRepository.findByUsername(user_data.getUsername());
+    public void registerPatient(Patient user_data) throws PatientAlreadyExistsException{
+        Optional<Patient> user = casualUserRepository.findByUsername(user_data.getUsername());
 
         if (user.isPresent())
-            return false;
+            throw new PatientAlreadyExistsException().byUsername(user_data.getUsername());
 
         casualUserRepository.save(user_data);
-        return true;
     }
 
-    public Optional<CasualUser> loginCasualUser(String username, String password) {
+    public Optional<Patient> loginPatient(String username, String password) {
         return casualUserRepository.findByUsernameAndPassword(username, password);
     }
 
-    public boolean registerDoctor(Doctor doctor_data) {
+    public boolean registerDoctor(Doctor doctor_data) throws DoctorAlreadyExistsException {
         Optional<Doctor> doctor = doctorRepository.findByUsername(doctor_data.getUsername());
         if (doctor.isPresent())
-            return false;
+            throw new DoctorAlreadyExistsException();
 
         boolean status = checkDoctor(doctor_data);
         if (status)
@@ -61,7 +63,7 @@ public class AuthenticationService {
         return doctorRepository.findByUsernameAndPassword(username, password);
     }
 
-    private boolean checkDoctor(Doctor doctor){
+    private boolean checkDoctor(Doctor doctor) {
         WebClient client = new WebClient(BrowserVersion.CHROME);
         client.getOptions().setCssEnabled(false);
         client.getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -70,10 +72,10 @@ public class AuthenticationService {
 
         HtmlPage page;
         try {
-            page = client.getPage("https://blsbg.eu/bg/medics/search?DocSearch[uin]="+doctor.getUin());
+            page = client.getPage("https://blsbg.eu/bg/medics/search?DocSearch[uin]=" + doctor.getUin());
         } catch (IOException e) {
             return false;
-        } finally{
+        } finally {
             client.close();
         }
 
@@ -83,18 +85,17 @@ public class AuthenticationService {
             return false;
 
         String name = node.getRow(1).getCell(2).asNormalizedText();
-        return name.equals(doctor.getFullName());
+        return name.contains(doctor.getFullName());
     }
 
-    public boolean registerAdmin(String username, String password){
+    public void registerAdmin(String username, String password) throws AdminAlreadyExistsException {
         if (adminRepository.findByUsernameAndPassword(username, password).isPresent())
-            return false;
+            throw new AdminAlreadyExistsException();
 
         adminRepository.save(new Admin(username, password));
-        return true;
     }
 
-    public boolean authenticateAdmin(String username, String password){
+    public boolean authenticateAdmin(String username, String password) {
         Optional<Admin> admin = adminRepository.findByUsernameAndPassword(username, password);
         return admin.isPresent();
     }

@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CasualUser {
+public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -27,7 +27,7 @@ public class CasualUser {
     @JsonIgnore
     private Set<Prescription> prescriptions = new HashSet<>();
 
-    public CasualUser(String fullName, String username, String password) {
+    public Patient(String fullName, String username, String password) {
         this.fullName = fullName;
         this.username = username;
         this.password = password;

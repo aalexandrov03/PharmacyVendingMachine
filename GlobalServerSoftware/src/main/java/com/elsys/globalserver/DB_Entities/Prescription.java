@@ -17,6 +17,8 @@ public class Prescription {
     private int id;
     @Column(nullable = false)
     private boolean valid;
+    @Column(nullable = false)
+    private boolean executed;
     @ManyToOne
     @JoinColumn(name = "doctor_id")
     @JsonIgnore
@@ -24,7 +26,7 @@ public class Prescription {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    private CasualUser user;
+    private Patient user;
     @ManyToMany
     @JoinTable(
             name = "medicines_prescriptions",
@@ -35,9 +37,10 @@ public class Prescription {
 
     public Prescription(){
         this.valid = true;
+        this.executed = false;
     }
 
-    public Prescription(Doctor doctor, CasualUser user) {
+    public Prescription(Doctor doctor, Patient user) {
         this.doctor = doctor;
         this.user = user;
     }
