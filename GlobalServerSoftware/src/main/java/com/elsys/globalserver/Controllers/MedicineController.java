@@ -1,32 +1,35 @@
 package com.elsys.globalserver.Controllers;
 
-import com.elsys.globalserver.DB_Entities.Medicine;
+import com.elsys.globalserver.DatabaseEntities.Medicine;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineNotFoundException;
 import com.elsys.globalserver.Services.MedicinesService;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/medicines")
-public class MedicinesController {
+public class MedicineController {
     private final MedicinesService medicinesService;
 
     @Autowired
-    public MedicinesController(MedicinesService medicinesService) {
+    public MedicineController(MedicinesService medicinesService) {
         this.medicinesService = medicinesService;
     }
 
     @GetMapping()
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DOCTOR')")
     public ResponseEntity<?> getMedicines(){
         return ResponseEntity.ok().body(medicinesService.getMedicines());
     }
 
     @PostMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addMedicines(@RequestBody List<Medicine> medicines){
         try{
             medicinesService.addMedicines(medicines);
@@ -37,6 +40,7 @@ public class MedicinesController {
     }
 
     @DeleteMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteMedicines(@RequestBody List<Integer> medicine_ids){
         try{
             medicinesService.deleteMedicines(medicine_ids);
