@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 public class DoctorAlreadyExistsException extends Exception{
     @Override
     public String getMessage(){
-        return "Doctor account already exists!";
+        return "Doctor already exists!";
     }
 }
