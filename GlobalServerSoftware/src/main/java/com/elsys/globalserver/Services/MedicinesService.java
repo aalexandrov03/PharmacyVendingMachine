@@ -1,7 +1,7 @@
 package com.elsys.globalserver.Services;
 
-import com.elsys.globalserver.DB_Entities.Medicine;
-import com.elsys.globalserver.DataAccess.MedicinesRepository;
+import com.elsys.globalserver.DatabaseEntities.Medicine;
+import com.elsys.globalserver.DataAccess.MedicineRepository;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineAlreadyExistsException;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +14,10 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class MedicinesService {
-    private final MedicinesRepository medicinesRepository;
+    private final MedicineRepository medicinesRepository;
 
     @Autowired
-    public MedicinesService(MedicinesRepository medicinesRepository) {
+    public MedicinesService(MedicineRepository medicinesRepository) {
         this.medicinesRepository = medicinesRepository;
     }
 

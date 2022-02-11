@@ -1,7 +1,7 @@
 package com.elsys.globalserver.Services;
 
-import com.elsys.globalserver.DB_Entities.Bug;
-import com.elsys.globalserver.DataAccess.BugsRepository;
+import com.elsys.globalserver.DatabaseEntities.Bug;
+import com.elsys.globalserver.DataAccess.BugRepository;
 import com.elsys.globalserver.Exceptions.Bugs.BugNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,10 +13,10 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class BugsService {
-    private final BugsRepository bugsRepository;
+    private final BugRepository bugsRepository;
 
     @Autowired
-    public BugsService(BugsRepository bugsRepository) {
+    public BugsService(BugRepository bugsRepository) {
         this.bugsRepository = bugsRepository;
     }
 

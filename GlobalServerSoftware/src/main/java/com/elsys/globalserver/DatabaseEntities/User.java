@@ -1,35 +1,35 @@
-package com.elsys.globalserver.DB_Entities;
+package com.elsys.globalserver.DatabaseEntities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
-@NoArgsConstructor
 @Getter
 @Setter
-public class Patient {
+@NoArgsConstructor
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(nullable = false)
-    private String fullName;
+    private String fullname;
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
     private String password;
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
-    private Set<Prescription> prescriptions = new HashSet<>();
+    @Column(nullable = false)
+    private String role;
 
-    public Patient(String fullName, String username, String password) {
-        this.fullName = fullName;
+    private String uin;
+    private String workplace;
+
+    public User(String fullname, String username, String password, String role) {
+        this.fullname = fullname;
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 }

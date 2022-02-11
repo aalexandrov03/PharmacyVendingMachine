@@ -1,6 +1,5 @@
-package com.elsys.globalserver.DB_Entities;
+package com.elsys.globalserver.DatabaseEntities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,15 +17,10 @@ public class Prescription {
     @Column(nullable = false)
     private boolean valid;
     @Column(nullable = false)
-    private boolean executed;
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
-    @JsonIgnore
-    private Doctor doctor;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private Patient user;
+    private int doctorId;
+    @Column(nullable = false)
+    private int patientId;
+
     @ManyToMany
     @JoinTable(
             name = "medicines_prescriptions",
@@ -37,12 +31,12 @@ public class Prescription {
 
     public Prescription(){
         this.valid = true;
-        this.executed = false;
     }
 
-    public Prescription(Doctor doctor, Patient user) {
-        this.doctor = doctor;
-        this.user = user;
+    public Prescription(int doctorId, int patientId) {
+        this.valid = true;
+        this.doctorId = doctorId;
+        this.patientId = patientId;
     }
 
     public void addMedicine(Medicine medicine) {
