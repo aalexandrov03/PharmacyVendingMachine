@@ -1,4 +1,4 @@
-package com.elsys.machine.DB_Entities;
+package com.elsys.machine.Models;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class Medicine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false)
@@ -46,5 +46,12 @@ public class Medicine {
     @Override
     public int hashCode() {
         return Objects.hash(name, price, needsPrescription);
+    }
+
+    public void setMedicine(Medicine medicine){
+        this.name = medicine.getName();
+        this.amount = medicine.getAmount();
+        this.price = medicine.getPrice();
+        this.needsPrescription = medicine.isNeedsPrescription();
     }
 }

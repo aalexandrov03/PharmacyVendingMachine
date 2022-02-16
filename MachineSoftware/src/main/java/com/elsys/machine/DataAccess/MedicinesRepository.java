@@ -1,6 +1,6 @@
 package com.elsys.machine.DataAccess;
 
-import com.elsys.machine.DB_Entities.Medicine;
+import com.elsys.machine.Models.Medicine;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

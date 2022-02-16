@@ -1,7 +1,7 @@
 package com.elsys.machine.Control.Router;
 
 
-import com.elsys.machine.DB_Entities.Medicine;
+import com.elsys.machine.Models.Medicine;
 
 import java.util.HashMap;
 
