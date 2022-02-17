@@ -27,7 +27,7 @@ public class BugController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_DOCTOR')")
+    @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
     public ResponseEntity<?> reportBug(@RequestBody Bug bug){
         bugsService.reportBug(bug);
         return ResponseEntity.status(201).build();
