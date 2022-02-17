@@ -3,6 +3,7 @@ package com.elsys.globalserver.Security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -15,12 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final UserDetailService userDetailService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfig(UserDetailService userDetailService, PasswordEncoder passwordEncoder) {
-        this.userDetailService = userDetailService;
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder) {
+        this.customUserDetailsService = customUserDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -29,23 +30,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/users/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic();
+                .formLogin().permitAll();
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(getDaoAuthenticationProvider());
+        auth.inMemoryAuthentication()
+                .withUser("admin")
+                .roles("ADMIN")
+                .password(passwordEncoder.encode("admin"))
+                .credentialsExpired(false)
+                .accountLocked(false)
+                .accountExpired(false)
+                .disabled(false);
     }
 
     @Bean
     public DaoAuthenticationProvider getDaoAuthenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(userDetailService);
+        provider.setUserDetailsService(customUserDetailsService);
         return provider;
     }
 }

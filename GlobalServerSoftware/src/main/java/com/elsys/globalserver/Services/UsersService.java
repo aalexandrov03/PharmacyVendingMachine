@@ -91,23 +91,4 @@ public class UsersService {
 
         return doctor.get();
     }
-
-    public void registerAdmin(User admin_data) throws AdminAlreadyExistsException {
-        admin_data.setPassword(passwordEncoder.encode(admin_data.getPassword()));
-        Optional<User> admin = userRepository.findByUsername(admin_data.getUsername());
-
-        if (admin.isPresent())
-            throw new AdminAlreadyExistsException();
-
-        userRepository.save(admin_data);
-    }
-
-    public User getAdminInfo(String username) throws AdminNotFoundException {
-        Optional<User> admin = userRepository.findByUsername(username);
-
-        if (admin.isEmpty())
-            throw new AdminNotFoundException();
-
-        return admin.get();
-    }
 }

@@ -63,20 +63,20 @@ public class PrescriptionsService {
         prescriptionsRepository.save(prescription);
     }
 
-    public List<Prescription> getDoctorPrescriptions(int doctor_id) throws DoctorNotFoundException {
-        Optional<User> doctor = userRepository.findById(doctor_id);
+    public List<Prescription> getDoctorPrescriptions(String username) throws DoctorNotFoundException {
+        Optional<User> doctor = userRepository.findByUsername(username);
         if (doctor.isEmpty())
             throw new DoctorNotFoundException();
 
-        return prescriptionsRepository.findByDoctorId(doctor_id);
+        return prescriptionsRepository.findByDoctorId(doctor.get().getId());
     }
 
-    public List<Prescription> getUserPrescriptions(int patient_id) throws PatientNotFoundException{
-        Optional<User> patient = userRepository.findById(patient_id);
+    public List<Prescription> getUserPrescriptions(String username) throws PatientNotFoundException{
+        Optional<User> patient = userRepository.findByUsername(username);
         if (patient.isEmpty())
             throw new PatientNotFoundException();
 
-        return prescriptionsRepository.findByPatientId(patient_id);
+        return prescriptionsRepository.findByPatientId(patient.get().getId());
     }
 
     public List<Prescription> getAllPrescriptions(){
@@ -84,15 +84,23 @@ public class PrescriptionsService {
                 .collect(Collectors.toList());
     }
 
-    public void changeValidationPrescriptions(List<Integer> prescription_ids, boolean valid) throws PrescriptionNotFoundException {
+    public void changeValidationPrescriptions(String username, List<Integer> prescription_ids, boolean valid)
+            throws PrescriptionNotFoundException, DoctorNotFoundException {
+        List<Prescription> prescriptions = getDoctorPrescriptions(username);
+
         for (int prescription_id : prescription_ids){
-            Optional<Prescription> prescription = prescriptionsRepository.findById(prescription_id);
+            boolean exists = false;
+            for (Prescription p: prescriptions){
+                if (prescription_id == p.getId()){
+                    exists = true;
+                    p.setValid(valid);
+                    prescriptionsRepository.save(p);
+                    break;
+                }
+            }
 
-            if (prescription.isEmpty())
+            if (!exists)
                 throw new PrescriptionNotFoundException();
-
-            prescription.get().setValid(valid);
-            prescriptionsRepository.save(prescription.get());
         }
     }
 

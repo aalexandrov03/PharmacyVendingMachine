@@ -8,6 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,22 +32,18 @@ public class PrescriptionController {
         return ResponseEntity.ok().body(prescriptionsService.getAllPrescriptions());
     }
 
-    @GetMapping("/patients")
-    @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_ADMIN')")
-    public ResponseEntity<?> getPatientPrescriptions(@RequestParam int patient_id){
-        try{
-            return ResponseEntity.ok().body(prescriptionsService.getUserPrescriptions(patient_id));
-        } catch (PatientNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
+    @GetMapping()
+    @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_DOCTOR')")
+    public ResponseEntity<?> getPrescriptions(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = ((User) authentication.getPrincipal()).getUsername();
 
-    @GetMapping("/doctors")
-    @PreAuthorize("hasAnyRole('ROLE_DOCTOR', 'ROLE_ADMIN')")
-    public ResponseEntity<?> getDoctorPrescriptions(@RequestParam int doctor_id){
         try{
-            return ResponseEntity.ok().body(prescriptionsService.getDoctorPrescriptions(doctor_id));
-        } catch (DoctorNotFoundException e){
+            if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("PATIENT")))
+                return ResponseEntity.ok().body(prescriptionsService.getUserPrescriptions(username));
+            else
+                return ResponseEntity.ok().body(prescriptionsService.getDoctorPrescriptions(username));
+        } catch (PatientNotFoundException | DoctorNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -51,10 +51,12 @@ public class PrescriptionController {
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
     public ResponseEntity<?> addPrescription(@RequestParam String patient_uname,
-                                             @RequestParam String doctor_uname,
                                              @RequestBody List<Integer> med_ids){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = ((User) authentication.getPrincipal()).getUsername();
+
         try{
-            prescriptionsService.addPrescription(patient_uname, doctor_uname, med_ids);
+            prescriptionsService.addPrescription(patient_uname, username, med_ids);
             return ResponseEntity.status(201).build();
         } catch (Exception exception) {
             return ResponseEntity.status(404).body(exception.getMessage());
@@ -76,10 +78,13 @@ public class PrescriptionController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DOCTOR')")
     public ResponseEntity<?> changeValidationPrescriptions(@RequestBody List<Integer> prescription_ids,
                                                            @RequestParam boolean valid){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = ((User) authentication.getPrincipal()).getUsername();
+
         try{
-            prescriptionsService.changeValidationPrescriptions(prescription_ids, valid);
+            prescriptionsService.changeValidationPrescriptions(username, prescription_ids, valid);
             return ResponseEntity.ok().build();
-        } catch (PrescriptionNotFoundException exception){
+        } catch (PrescriptionNotFoundException | DoctorNotFoundException exception){
             return ResponseEntity.status(404).body(exception.getMessage());
         }
     }

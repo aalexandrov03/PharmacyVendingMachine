@@ -1,12 +1,16 @@
 package com.elsys.globalserver.Controllers;
 
 import com.elsys.globalserver.DatabaseEntities.User;
-import com.elsys.globalserver.Exceptions.Users.*;
+import com.elsys.globalserver.Exceptions.Users.DoctorAlreadyExistsException;
+import com.elsys.globalserver.Exceptions.Users.DoctorNotFoundException;
+import com.elsys.globalserver.Exceptions.Users.PatientAlreadyExistsException;
+import com.elsys.globalserver.Exceptions.Users.PatientNotFoundException;
 import com.elsys.globalserver.Services.UsersService;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,43 +24,33 @@ public class UserController {
     }
 
     @GetMapping("/patient")
-    public ResponseEntity<?> getPatientInfo(@RequestHeader("Authorization") String encoded_credentials){
-        encoded_credentials = encoded_credentials.split(" ")[1];
-        String decoded_credentials = new String(Base64.decodeBase64(encoded_credentials));
+    public ResponseEntity<?> getPatientInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username =
+                ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername();
 
-        try{
-            return ResponseEntity.ok().body(usersService.getPatientInfo(decoded_credentials.split(":")[0]));
-        } catch (PatientNotFoundException e){
+        try {
+            return ResponseEntity.ok().body(usersService.getPatientInfo(username));
+        } catch (PatientNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @GetMapping("/doctor")
-    public ResponseEntity<?> getDoctorInfo(@RequestHeader("Authorization") String encoded_credentials){
-        encoded_credentials = encoded_credentials.split(" ")[1];
-        String decoded_credentials = new String(Base64.decodeBase64(encoded_credentials));
+    public ResponseEntity<?> getDoctorInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username =
+                ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername();
 
-        try{
-            return ResponseEntity.ok().body(usersService.getDoctorInfo(decoded_credentials.split(":")[0]));
-        } catch (DoctorNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/admin")
-    public ResponseEntity<?> getAdminInfo(@RequestHeader("Authorization") String encoded_credentials){
-        encoded_credentials = encoded_credentials.split(" ")[1];
-        String decoded_credentials = new String(Base64.decodeBase64(encoded_credentials));
-
-        try{
-            return ResponseEntity.ok().body(usersService.getAdminInfo(decoded_credentials.split(":")[0]));
-        } catch (AdminNotFoundException e){
+        try {
+            return ResponseEntity.ok().body(usersService.getDoctorInfo(username));
+        } catch (DoctorNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @PostMapping("/patient")
-    public ResponseEntity<?> registerPatient(@RequestBody User patient){
+    public ResponseEntity<?> registerPatient(@RequestBody User patient) {
         try {
             usersService.registerPatient(patient);
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -66,21 +60,11 @@ public class UserController {
     }
 
     @PostMapping("/doctor")
-    public ResponseEntity<?> registerDoctor(@RequestBody User doctor){
+    public ResponseEntity<?> registerDoctor(@RequestBody User doctor) {
         try {
             usersService.registerDoctor(doctor);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (DoctorAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/admin")
-    public ResponseEntity<?> registerAdmin(@RequestBody User admin){
-        try {
-            usersService.registerAdmin(admin);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (AdminAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());
         }
     }
