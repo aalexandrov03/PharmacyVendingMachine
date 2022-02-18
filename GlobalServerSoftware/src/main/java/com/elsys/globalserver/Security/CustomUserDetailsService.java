@@ -1,7 +1,7 @@
 package com.elsys.globalserver.Security;
 
 import com.elsys.globalserver.DataAccess.UserRepository;
-import com.elsys.globalserver.DatabaseEntities.User;
+import com.elsys.globalserver.Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,6 +1,6 @@
 package com.elsys.globalserver.Services;
 
-import com.elsys.globalserver.DatabaseEntities.Bug;
+import com.elsys.globalserver.Models.Bug;
 import com.elsys.globalserver.DataAccess.BugRepository;
 import com.elsys.globalserver.Exceptions.Bugs.BugNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

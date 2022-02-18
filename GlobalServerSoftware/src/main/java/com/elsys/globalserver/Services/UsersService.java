@@ -1,7 +1,7 @@
 package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DataAccess.UserRepository;
-import com.elsys.globalserver.DatabaseEntities.User;
+import com.elsys.globalserver.Models.User;
 import com.elsys.globalserver.Exceptions.Users.*;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;

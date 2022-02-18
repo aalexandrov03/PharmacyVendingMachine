@@ -1,6 +1,6 @@
 package com.elsys.globalserver.DataAccess;
 
-import com.elsys.globalserver.DatabaseEntities.Prescription;
+import com.elsys.globalserver.Models.Prescription;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

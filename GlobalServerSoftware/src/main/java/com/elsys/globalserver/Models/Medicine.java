@@ -1,4 +1,4 @@
-package com.elsys.globalserver.DatabaseEntities;
+package com.elsys.globalserver.Models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

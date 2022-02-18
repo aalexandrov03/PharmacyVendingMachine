@@ -1,6 +1,6 @@
 package com.elsys.globalserver.Controllers;
 
-import com.elsys.globalserver.DatabaseEntities.User;
+import com.elsys.globalserver.Models.User;
 import com.elsys.globalserver.Exceptions.Users.DoctorAlreadyExistsException;
 import com.elsys.globalserver.Exceptions.Users.DoctorNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.PatientAlreadyExistsException;

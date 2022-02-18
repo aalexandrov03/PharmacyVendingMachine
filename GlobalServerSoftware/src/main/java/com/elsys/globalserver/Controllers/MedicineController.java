@@ -1,6 +1,6 @@
 package com.elsys.globalserver.Controllers;
 
-import com.elsys.globalserver.DatabaseEntities.Medicine;
+import com.elsys.globalserver.Models.Medicine;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineNotFoundException;
 import com.elsys.globalserver.Services.MedicinesService;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineAlreadyExistsException;

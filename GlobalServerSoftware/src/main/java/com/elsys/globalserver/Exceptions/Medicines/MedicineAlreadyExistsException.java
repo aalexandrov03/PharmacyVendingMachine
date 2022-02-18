@@ -1,6 +1,6 @@
 package com.elsys.globalserver.Exceptions.Medicines;
 
-import com.elsys.globalserver.DatabaseEntities.Medicine;
+import com.elsys.globalserver.Models.Medicine;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

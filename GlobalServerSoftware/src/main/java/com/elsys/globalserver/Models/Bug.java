@@ -1,4 +1,4 @@
-package com.elsys.globalserver.DatabaseEntities;
+package com.elsys.globalserver.Models;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
