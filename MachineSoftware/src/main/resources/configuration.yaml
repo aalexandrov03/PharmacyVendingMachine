@@ -1,8 +1,0 @@
----
-status: true
-update_date: "2022-02-18T12:17:44.435190"
-mapping:
-- medicineName: "Paracetamol"
-  slotID: 5
-- medicineName: "Espumizan"
-  slotID: 6

@@ -4,13 +4,15 @@ import com.elsys.machine.Models.Medicine;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 public class PrescriptionDTO {
-    private boolean isValid;
-    private List<Medicine> medicines;
+    private boolean valid;
+    private Set<Medicine> medicines;
 }

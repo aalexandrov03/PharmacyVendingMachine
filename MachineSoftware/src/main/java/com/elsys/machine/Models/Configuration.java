@@ -13,4 +13,5 @@ public class Configuration {
     private boolean status;
     private String update_date;
     private List<Mapping> mapping;
+    private RouterSettings settings;
 }

@@ -40,7 +40,9 @@ public class Medicine {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Medicine medicine = (Medicine) o;
-        return Double.compare(medicine.price, price) == 0 && needsPrescription == medicine.needsPrescription && name.equals(medicine.name);
+        return Double.compare(medicine.price, price) == 0
+                && needsPrescription == medicine.needsPrescription
+                && name.equals(medicine.name);
     }
 
     @Override
@@ -53,5 +55,15 @@ public class Medicine {
         this.amount = medicine.getAmount();
         this.price = medicine.getPrice();
         this.needsPrescription = medicine.isNeedsPrescription();
+    }
+
+    @Override
+    public String toString() {
+        return "Medicine{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", amount=" + amount +
+                ", needsPrescription=" + needsPrescription +
+                '}';
     }
 }

@@ -1,6 +1,6 @@
 package com.elsys.machine.Control.Driver;
 
-import com.elsys.machine.Control.Router.RouteNode;
+import com.elsys.machine.Control.Utils.RouteNode;
 import com.elsys.machine.Control.Utils.Direction;
 import com.elsys.machine.Control.Utils.Motor;
 import org.python.util.PythonInterpreter;
@@ -24,13 +24,13 @@ public class Executor {
         for (RouteNode node : route) {
             String motor = "Z", dir = "0";
 
-            if (node.dir == Direction.UP || node.dir == Direction.RIGHT)
+            if (node.getDir() == Direction.UP || node.getDir() == Direction.RIGHT)
                 dir = "1";
 
-            if (node.id == Motor.X)
+            if (node.getId() == Motor.X)
                 motor = "X";
 
-            String[] args = {"mcontrol.py", "execute", motor, String.valueOf(node.steps), dir};
+            String[] args = {"mcontrol.py", "execute", motor, String.valueOf(node.getSteps()), dir};
             PythonInterpreter.initialize(System.getProperties(), System.getProperties(), args);
             PythonInterpreter interpreter = new PythonInterpreter();
             interpreter.execfile(getClass().getResourceAsStream("/mcontrol.py"));

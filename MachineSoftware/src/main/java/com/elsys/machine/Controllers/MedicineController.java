@@ -37,9 +37,9 @@ public class MedicineController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> deleteMedicine(@RequestParam String medicineName){
+    public ResponseEntity<?> deleteMedicine(@RequestParam String name){
         try{
-            medicineService.deleteMedicine(medicineName);
+            medicineService.deleteMedicine(name);
             return ResponseEntity.status(200).build();
         } catch(Exception e){
             return ResponseEntity.status(404).body(e.getMessage());
@@ -48,10 +48,10 @@ public class MedicineController {
 
     @PutMapping()
     public ResponseEntity<?> updateMedicine(@RequestBody Medicine medicine,
-                                            @RequestParam String medicineName){
+                                            @RequestParam String name){
         try{
-            medicineService.updateMedicine(medicineName, medicine);
-            return ResponseEntity.status(201).build();
+            medicineService.updateMedicine(name, medicine);
+            return ResponseEntity.ok().build();
         } catch(Exception e){
             return ResponseEntity.status(404).body(e.getMessage());
         }
