@@ -5,6 +5,7 @@ import com.elsys.machine.Models.RouterSettings;
 import com.elsys.machine.Services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class ConfigurationController {
     }
 
     @PostMapping("/status")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> setStatus(@RequestParam boolean value){
         try {
             configurationService.setStatus(value);
@@ -42,6 +44,7 @@ public class ConfigurationController {
     }
 
     @GetMapping("/router/mapping")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getMapping(){
         try {
             return ResponseEntity.ok().body(configurationService.getMapping());
@@ -52,6 +55,7 @@ public class ConfigurationController {
     }
 
     @PostMapping("/router/mapping")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> setMapping(@RequestBody List<Mapping> mapping){
         try {
             configurationService.setMapping(mapping);
@@ -63,6 +67,7 @@ public class ConfigurationController {
     }
 
     @DeleteMapping("/router/mapping")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteRouterMapping(){
         try {
             configurationService.deleteRouterMapping();
@@ -74,6 +79,7 @@ public class ConfigurationController {
     }
 
     @GetMapping("/router/settings")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getRouterSettings(){
         try{
             return ResponseEntity.ok().body(configurationService.getRouterSettings());
@@ -84,6 +90,7 @@ public class ConfigurationController {
     }
 
     @PostMapping("/router/settings")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> setRouterSettings(@RequestBody RouterSettings settings){
         try {
             configurationService.setRouterSettings(settings);
@@ -95,6 +102,7 @@ public class ConfigurationController {
     }
 
     @DeleteMapping("/router/settings")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteRouterSettings(){
         try {
             configurationService.deleteRouterSettings();

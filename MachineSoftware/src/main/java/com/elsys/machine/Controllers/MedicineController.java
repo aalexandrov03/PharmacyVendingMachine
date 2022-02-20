@@ -5,6 +5,7 @@ import com.elsys.machine.Services.MedicineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class MedicineController {
     }
 
     @PostMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addMedicine(@RequestBody Medicine medicine){
         try{
             medicineService.addMedicine(medicine);
@@ -37,6 +39,7 @@ public class MedicineController {
     }
 
     @DeleteMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteMedicine(@RequestParam String name){
         try{
             medicineService.deleteMedicine(name);
@@ -47,6 +50,7 @@ public class MedicineController {
     }
 
     @PutMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateMedicine(@RequestBody Medicine medicine,
                                             @RequestParam String name){
         try{
