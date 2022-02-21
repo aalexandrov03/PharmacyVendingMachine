@@ -1,6 +1,5 @@
 package com.elsys.globalserver.Models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,7 +19,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
-    @JsonIgnore
     private String password;
     @Column(nullable = false)
     private String role;
