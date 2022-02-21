@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/bugs")
+@CrossOrigin(origins = "*")
 public class BugController {
     private final BugsService bugsService;
 
