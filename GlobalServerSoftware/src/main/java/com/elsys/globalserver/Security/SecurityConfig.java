@@ -47,6 +47,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .credentialsExpired(false)
                 .accountLocked(false)
                 .accountExpired(false)
+                .disabled(false)
+            .and()
+                .withUser("machine")
+                .roles("MACHINE")
+                .password(passwordEncoder.encode("machine"))
+                .credentialsExpired(false)
+                .accountLocked(false)
+                .accountExpired(false)
                 .disabled(false);
     }
 

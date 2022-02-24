@@ -49,6 +49,16 @@ public class PrescriptionController {
         }
     }
 
+    @GetMapping("{prescription_id}")
+    @PreAuthorize("hasRole('ROLE_MACHINE')")
+    public ResponseEntity<?> getPrescriptionByID(@PathVariable int prescription_id){
+        try{
+            return ResponseEntity.ok().body(prescriptionsService.getPrescriptionByID(prescription_id));
+        } catch (PrescriptionNotFoundException e){
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
     public ResponseEntity<?> addPrescription(@RequestParam String patient_uname,

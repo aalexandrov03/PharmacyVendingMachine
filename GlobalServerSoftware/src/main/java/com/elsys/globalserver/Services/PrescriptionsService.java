@@ -63,6 +63,14 @@ public class PrescriptionsService {
         prescriptionsRepository.save(prescription);
     }
 
+    public Prescription getPrescriptionByID(int prescription_id) throws PrescriptionNotFoundException {
+        Optional<Prescription> prescription = prescriptionsRepository.findById(prescription_id);
+        if (prescription.isEmpty())
+            throw new PrescriptionNotFoundException();
+
+        return prescription.get();
+    }
+
     public List<Prescription> getDoctorPrescriptions(String username) throws DoctorNotFoundException {
         Optional<User> doctor = userRepository.findByUsername(username);
         if (doctor.isEmpty())
