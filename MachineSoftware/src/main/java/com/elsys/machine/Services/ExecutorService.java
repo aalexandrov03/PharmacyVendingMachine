@@ -3,14 +3,21 @@ package com.elsys.machine.Services;
 import com.elsys.machine.Control.Driver.Executor;
 import com.elsys.machine.Control.Router.Router;
 import com.elsys.machine.Control.Utils.RouteNode;
-import com.elsys.machine.Controllers.Utils.PrescriptionDTO;
+import com.elsys.machine.Controllers.Utils.Prescription;
 import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Services.Utils.ValidationResult;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
+import com.mashape.unirest.request.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elsys.machine.Services.Utils.ValidationResult.*;
 
@@ -26,14 +33,22 @@ public class ExecutorService {
         this.configurationService = configurationService;
     }
 
-    private ValidationResult checkPrescription(PrescriptionDTO prescriptionDTO) {
+    public Optional<Prescription> getPrescriptionFromServer(int prescription_id) throws UnirestException {
+        HttpResponse<Prescription> response = Unirest.get("http://localhost:8081/prescriptions/{prescription_id}")
+                .routeParam("prescription_id", String.valueOf(prescription_id))
+                .basicAuth("machine", "machine").asObject(Prescription.class);
+
+        return Optional.of(response.getBody());
+    }
+
+    private ValidationResult checkPrescription(Prescription prescription) {
         List<Medicine> medicines = medicineService.getMedicines("both");
 
-        if (!prescriptionDTO.isValid())
+        if (!prescription.isValid())
             return INVALID;
 
         int count = 0;
-        for (Medicine medicine : prescriptionDTO.getMedicines()) {
+        for (Medicine medicine : prescription.getMedicines()) {
             for (Medicine m : medicines) {
                 if (medicine.equals(m))
                     if (m.getAmount() >= medicine.getAmount())
@@ -43,14 +58,14 @@ public class ExecutorService {
 
         if (count == 0)
             return NOT_AVAILABLE;
-        else if (count == prescriptionDTO.getMedicines().size())
+        else if (count == prescription.getMedicines().size())
             return OK;
         else
             return PARTLY_AVAILABLE;
     }
 
-    public ValidationResult executePrescription(PrescriptionDTO prescriptionDTO) throws IOException {
-        ValidationResult status = checkPrescription(prescriptionDTO);
+    public ValidationResult executePrescription(Prescription prescription) throws IOException {
+        ValidationResult status = checkPrescription(prescription);
 
         switch(status){
             case OK:
@@ -58,7 +73,7 @@ public class ExecutorService {
                     return SHUTDOWN;
 
                 Router router = new Router(configurationService.getConfiguration());
-                List<RouteNode> route = router.createRoute(prescriptionDTO.getMedicines());
+                List<RouteNode> route = router.createRoute(prescription.getMedicines());
 
                 synchronized (Executor.getExecutor()){
                     Executor.getExecutor().execute(route);
