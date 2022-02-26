@@ -18,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/prescriptions")
-@CrossOrigin(origins = "*")
 public class PrescriptionController {
     private final PrescriptionsService prescriptionsService;
 

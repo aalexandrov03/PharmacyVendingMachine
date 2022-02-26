@@ -18,6 +18,7 @@ import java.util.Objects;
 public class Medicine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private int id;
     @Column(nullable = false, unique = true)
     private String name;

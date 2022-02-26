@@ -1,8 +1,8 @@
 package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.DataAccess.UserRepository;
-import com.elsys.globalserver.Models.User;
 import com.elsys.globalserver.Exceptions.Users.*;
+import com.elsys.globalserver.Models.User;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -20,23 +20,24 @@ public class UsersService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsersService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UsersService(UserRepository userRepository,
+                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     public void registerPatient(User patient) throws PatientAlreadyExistsException{
         patient.setPassword(passwordEncoder.encode(patient.getPassword()));
-        Optional<User> user = userRepository.findByUsername(patient.getUsername());
+        Optional<User> patient1 = userRepository.findUserByEmail(patient.getEmail());
 
-        if (user.isPresent())
+        if (patient1.isPresent())
             throw new PatientAlreadyExistsException();
 
         userRepository.save(patient);
     }
 
-    public User getPatientInfo(String username) throws PatientNotFoundException {
-        Optional<User> patient = userRepository.findByUsername(username);
+    public User getPatientInfo(String email) throws PatientNotFoundException {
+        Optional<User> patient = userRepository.findUserByEmail(email);
 
         if (patient.isEmpty())
             throw new PatientNotFoundException();
@@ -44,18 +45,19 @@ public class UsersService {
         return patient.get();
     }
 
-    public void registerDoctor(User doctor_data) throws DoctorAlreadyExistsException {
-        doctor_data.setPassword(passwordEncoder.encode(doctor_data.getPassword()));
-        Optional<User> doctor = userRepository.findByUsername(doctor_data.getUsername());
+    public void registerDoctor(User doctor) throws Exception {
+        doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
+        Optional<User> doctor1 = userRepository.findUserByEmail(doctor.getEmail());
 
-        if (doctor.isPresent())
+        if (doctor1.isPresent())
             throw new DoctorAlreadyExistsException();
 
-        boolean status = checkDoctor(doctor_data);
+        boolean status = checkDoctor(doctor);
 
         if (status)
-            userRepository.save(doctor_data);
-
+            userRepository.save(doctor);
+        else
+            throw new Exception("Doctor check failed!");
     }
 
     private boolean checkDoctor(User doctor) {
@@ -74,17 +76,22 @@ public class UsersService {
             client.close();
         }
 
-        HtmlTable node = (HtmlTable) page.getByXPath("//table[@class='items']").get(0);
+        HtmlTable node;
+        try{
+            node = (HtmlTable) page.getByXPath("//table[@class='items']").get(0);
+        } catch (IndexOutOfBoundsException e){
+            return false;
+        }
 
         if (node.getRowCount() == 1)
             return false;
 
         String name = node.getRow(1).getCell(2).asNormalizedText();
-        return name.contains(doctor.getFullname());
+        return name.contains(doctor.getFullName());
     }
 
-    public User getDoctorInfo(String username) throws DoctorNotFoundException {
-        Optional<User> doctor = userRepository.findByUsername(username);
+    public User getDoctorInfo(String email) throws DoctorNotFoundException {
+        Optional<User> doctor = userRepository.findUserByEmail(email);
 
         if (doctor.isEmpty())
             throw new DoctorNotFoundException();

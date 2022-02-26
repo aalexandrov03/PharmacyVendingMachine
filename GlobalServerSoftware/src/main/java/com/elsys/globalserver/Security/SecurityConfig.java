@@ -30,11 +30,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .formLogin().permitAll();
+                .httpBasic();
     }
 
     @Override

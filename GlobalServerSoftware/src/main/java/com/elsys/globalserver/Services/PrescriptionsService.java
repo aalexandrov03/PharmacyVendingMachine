@@ -5,11 +5,11 @@ import com.elsys.globalserver.DataAccess.PrescriptionRepository;
 import com.elsys.globalserver.DataAccess.UserRepository;
 import com.elsys.globalserver.Models.Medicine;
 import com.elsys.globalserver.Models.Prescription;
-import com.elsys.globalserver.Models.User;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineNotFoundException;
 import com.elsys.globalserver.Exceptions.Prescriptions.PrescriptionNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.DoctorNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.PatientNotFoundException;
+import com.elsys.globalserver.Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +34,10 @@ public class PrescriptionsService {
         this.medicinesRepository = medicinesRepository;
     }
 
-    public void addPrescription(String patient_username, String doctor_username, List<Integer> med_ids)
+    public void addPrescription(String patient_email, String doctor_email, List<Integer> med_ids)
             throws MedicineNotFoundException, PatientNotFoundException, DoctorNotFoundException{
-        Optional<User> patient = userRepository.findByUsername(patient_username);
-        Optional<User> doctor = userRepository.findByUsername(doctor_username);
+        Optional<User> patient = userRepository.findUserByEmail(patient_email);
+        Optional<User> doctor = userRepository.findUserByEmail(doctor_email);
 
         List<Medicine> medicines = new ArrayList<>();
 
@@ -71,16 +71,16 @@ public class PrescriptionsService {
         return prescription.get();
     }
 
-    public List<Prescription> getDoctorPrescriptions(String username) throws DoctorNotFoundException {
-        Optional<User> doctor = userRepository.findByUsername(username);
+    public List<Prescription> getDoctorPrescriptions(String email) throws DoctorNotFoundException {
+        Optional<User> doctor = userRepository.findUserByEmail(email);
         if (doctor.isEmpty())
             throw new DoctorNotFoundException();
 
         return prescriptionsRepository.findByDoctorId(doctor.get().getId());
     }
 
-    public List<Prescription> getUserPrescriptions(String username) throws PatientNotFoundException{
-        Optional<User> patient = userRepository.findByUsername(username);
+    public List<Prescription> getUserPrescriptions(String email) throws PatientNotFoundException{
+        Optional<User> patient = userRepository.findUserByEmail(email);
         if (patient.isEmpty())
             throw new PatientNotFoundException();
 
