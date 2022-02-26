@@ -36,9 +36,8 @@ public class PrescriptionsService {
     }
 
     public void addPrescription(String patient_email, String doctor_email, List<MedOrder> medicines)
-            throws MedicineNotFoundException, PatientNotFoundException, DoctorNotFoundException{
+            throws MedicineNotFoundException, PatientNotFoundException{
         Optional<User> patient = userRepository.findUserByEmail(patient_email);
-        Optional<User> doctor = userRepository.findUserByEmail(doctor_email);
         List<Medicine> meds = new ArrayList<>();
 
         for (MedOrder medOrder : medicines){
@@ -53,8 +52,6 @@ public class PrescriptionsService {
 
         if (patient.isEmpty())
             throw new PatientNotFoundException();
-        if (doctor.isEmpty())
-            throw new DoctorNotFoundException();
 
         Prescription prescription = new Prescription(doctor_email, patient_email);
         prescription.setMedicines(meds);
