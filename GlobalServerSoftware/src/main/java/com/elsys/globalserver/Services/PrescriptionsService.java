@@ -1,5 +1,6 @@
 package com.elsys.globalserver.Services;
 
+import com.elsys.globalserver.Controllers.Utils.MedOrder;
 import com.elsys.globalserver.DataAccess.MedicineRepository;
 import com.elsys.globalserver.DataAccess.PrescriptionRepository;
 import com.elsys.globalserver.DataAccess.UserRepository;
@@ -34,20 +35,20 @@ public class PrescriptionsService {
         this.medicinesRepository = medicinesRepository;
     }
 
-    public void addPrescription(String patient_email, String doctor_email, List<Integer> med_ids)
+    public void addPrescription(String patient_email, String doctor_email, List<MedOrder> medicines)
             throws MedicineNotFoundException, PatientNotFoundException, DoctorNotFoundException{
         Optional<User> patient = userRepository.findUserByEmail(patient_email);
         Optional<User> doctor = userRepository.findUserByEmail(doctor_email);
+        List<Medicine> meds = new ArrayList<>();
 
-        List<Medicine> medicines = new ArrayList<>();
-
-        for (int med_id : med_ids) {
-            Optional<Medicine> medicine = medicinesRepository.findById(med_id);
+        for (MedOrder medOrder : medicines){
+            Optional<Medicine> medicine = medicinesRepository.findByName(medOrder.getName());
 
             if (medicine.isEmpty())
-                throw new MedicineNotFoundException(med_id);
+                throw new MedicineNotFoundException();
 
-            medicines.add(medicine.get());
+            for (int i = 0; i < medOrder.getAmount(); i ++)
+                meds.add(medicine.get());
         }
 
         if (patient.isEmpty())
@@ -55,10 +56,8 @@ public class PrescriptionsService {
         if (doctor.isEmpty())
             throw new DoctorNotFoundException();
 
-        Prescription prescription = new Prescription(doctor.get().getId(), patient.get().getId());
-
-        for (Medicine medicine : medicines)
-            prescription.addMedicine(medicine);
+        Prescription prescription = new Prescription(doctor_email, patient_email);
+        prescription.setMedicines(meds);
 
         prescriptionsRepository.save(prescription);
     }
@@ -76,7 +75,7 @@ public class PrescriptionsService {
         if (doctor.isEmpty())
             throw new DoctorNotFoundException();
 
-        return prescriptionsRepository.findByDoctorId(doctor.get().getId());
+        return prescriptionsRepository.findByDoctor(doctor.get().getEmail());
     }
 
     public List<Prescription> getUserPrescriptions(String email) throws PatientNotFoundException{
@@ -84,7 +83,7 @@ public class PrescriptionsService {
         if (patient.isEmpty())
             throw new PatientNotFoundException();
 
-        return prescriptionsRepository.findByPatientId(patient.get().getId());
+        return prescriptionsRepository.findByPatient(patient.get().getEmail());
     }
 
     public List<Prescription> getAllPrescriptions(){

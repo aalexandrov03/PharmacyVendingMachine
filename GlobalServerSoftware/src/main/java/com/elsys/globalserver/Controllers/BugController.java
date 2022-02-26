@@ -30,7 +30,7 @@ public class BugController {
     @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
     public ResponseEntity<?> reportBug(@RequestBody Bug bug){
         bugsService.reportBug(bug);
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()

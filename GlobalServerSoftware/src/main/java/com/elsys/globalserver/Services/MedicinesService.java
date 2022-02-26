@@ -31,20 +31,21 @@ public class MedicinesService {
         for (Medicine m: medicines){
             for (Medicine m_repo: medicinesRepository.findAll()){
                 if (m.equals(m_repo))
-                    throw new MedicineAlreadyExistsException(m);
+                    throw new MedicineAlreadyExistsException();
             }
         }
 
         medicinesRepository.saveAll(medicines);
     }
 
-    public void deleteMedicines(List<Integer> medicine_ids) throws MedicineNotFoundException{
-        for (int id: medicine_ids){
-            Optional<Medicine> medicine = medicinesRepository.findById(id);
+    public void deleteMedicines(List<String> medicines) throws MedicineNotFoundException{
+        for (String name: medicines){
+            Optional<Medicine> medicine = medicinesRepository.findByName(name);
             
             if (medicine.isEmpty())
-                throw new MedicineNotFoundException(id);
+                throw new MedicineNotFoundException();
+
+            medicinesRepository.deleteById(medicine.get().getId());
         }
-        medicinesRepository.deleteAllById(medicine_ids);
     }
 }

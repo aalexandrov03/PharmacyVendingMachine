@@ -1,13 +1,11 @@
 package com.elsys.globalserver.Exceptions.Medicines;
 
-import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+@NoArgsConstructor
 public class MedicineNotFoundException extends Exception{
-    private int medicine_id;
-
     @Override
     public String getMessage() {
-        return "Medicine with ID: " + medicine_id + " does not exist!";
+        return "Medicine does not exist!";
     }
 }

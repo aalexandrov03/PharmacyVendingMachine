@@ -1,5 +1,6 @@
 package com.elsys.globalserver.Controllers;
 
+import com.elsys.globalserver.Controllers.Utils.MedOrder;
 import com.elsys.globalserver.Exceptions.Prescriptions.PrescriptionNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.DoctorNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.PatientNotFoundException;
@@ -32,23 +33,33 @@ public class PrescriptionController {
         return ResponseEntity.ok().body(prescriptionsService.getAllPrescriptions());
     }
 
-    @GetMapping()
-    @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_DOCTOR')")
-    public ResponseEntity<?> getPrescriptions(){
+    @GetMapping("/patient")
+    @PreAuthorize("hasRole('ROLE_PATIENT')")
+    public ResponseEntity<?> getPatientPrescriptions(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = ((User) authentication.getPrincipal()).getUsername();
+        String email = ((User) authentication.getPrincipal()).getUsername();
 
         try{
-            if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("PATIENT")))
-                return ResponseEntity.ok().body(prescriptionsService.getUserPrescriptions(username));
-            else
-                return ResponseEntity.ok().body(prescriptionsService.getDoctorPrescriptions(username));
-        } catch (PatientNotFoundException | DoctorNotFoundException e){
+            return ResponseEntity.ok().body(prescriptionsService.getUserPrescriptions(email));
+        } catch (PatientNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @GetMapping("{prescription_id}")
+    @GetMapping("/doctor")
+    @PreAuthorize("hasRole('ROLE_DOCTOR')")
+    public ResponseEntity<?> getDoctorPrescriptions(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = ((User) authentication.getPrincipal()).getUsername();
+
+        try{
+            return ResponseEntity.ok().body(prescriptionsService.getDoctorPrescriptions(email));
+        } catch (DoctorNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/machine/{prescription_id}")
     @PreAuthorize("hasRole('ROLE_MACHINE')")
     public ResponseEntity<?> getPrescriptionByID(@PathVariable int prescription_id){
         try{
@@ -60,14 +71,14 @@ public class PrescriptionController {
 
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
-    public ResponseEntity<?> addPrescription(@RequestParam String patient_uname,
-                                             @RequestBody List<Integer> med_ids){
+    public ResponseEntity<?> addPrescription(@RequestParam String patient_email,
+                                             @RequestBody List<MedOrder> medicines){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = ((User) authentication.getPrincipal()).getUsername();
 
         try{
-            prescriptionsService.addPrescription(patient_uname, username, med_ids);
-            return ResponseEntity.status(201).build();
+            prescriptionsService.addPrescription(patient_email, username, medicines);
+            return ResponseEntity.ok().build();
         } catch (Exception exception) {
             return ResponseEntity.status(404).body(exception.getMessage());
         }
