@@ -29,7 +29,7 @@ public class Prescription {
     )
     private List<Medicine> medicines = new ArrayList<>();
 
-    public Prescription(){
+    public Prescription() {
         this.valid = true;
     }
 
@@ -37,9 +37,5 @@ public class Prescription {
         this.valid = true;
         this.doctor = doctor;
         this.patient = patient;
-    }
-
-    public void addMedicine(Medicine medicine) {
-        medicines.add(medicine);
     }
 }

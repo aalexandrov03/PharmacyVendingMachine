@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -29,54 +28,53 @@ public class PrescriptionController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllPrescriptions(){
+    public ResponseEntity<?> getAllPrescriptions() {
         return ResponseEntity.ok().body(prescriptionsService.getAllPrescriptions());
     }
 
     @GetMapping("/patient")
     @PreAuthorize("hasRole('ROLE_PATIENT')")
-    public ResponseEntity<?> getPatientPrescriptions(){
+    public ResponseEntity<?> getPatientPrescriptions() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = ((User) authentication.getPrincipal()).getUsername();
 
-        try{
+        try {
             return ResponseEntity.ok().body(prescriptionsService.getUserPrescriptions(email));
-        } catch (PatientNotFoundException e){
+        } catch (PatientNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @GetMapping("/doctor")
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
-    public ResponseEntity<?> getDoctorPrescriptions(){
+    public ResponseEntity<?> getDoctorPrescriptions() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = ((User) authentication.getPrincipal()).getUsername();
 
-        try{
+        try {
             return ResponseEntity.ok().body(prescriptionsService.getDoctorPrescriptions(email));
-        } catch (DoctorNotFoundException e){
+        } catch (DoctorNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @GetMapping("/machine/{prescription_id}")
     @PreAuthorize("hasRole('ROLE_MACHINE')")
-    public ResponseEntity<?> getPrescriptionByID(@PathVariable int prescription_id){
-        try{
+    public ResponseEntity<?> getPrescriptionByID(@PathVariable int prescription_id) {
+        try {
             return ResponseEntity.ok().body(prescriptionsService.getPrescriptionByID(prescription_id));
-        } catch (PrescriptionNotFoundException e){
+        } catch (PrescriptionNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_DOCTOR')")
-    public ResponseEntity<?> addPrescription(@RequestParam String patient_email,
-                                             @RequestBody List<MedOrder> medicines){
+    public ResponseEntity<?> addPrescription(@RequestParam String patient_email, @RequestBody List<MedOrder> medicines) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = ((User) authentication.getPrincipal()).getUsername();
 
-        try{
+        try {
             prescriptionsService.addPrescription(patient_email, username, medicines);
             return ResponseEntity.ok().build();
         } catch (Exception exception) {
@@ -86,26 +84,25 @@ public class PrescriptionController {
 
     @DeleteMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deletePrescriptions(@RequestBody List<Integer> prescription_ids){
-        try{
+    public ResponseEntity<?> deletePrescriptions(@RequestBody List<Integer> prescription_ids) {
+        try {
             prescriptionsService.deletePrescriptions(prescription_ids);
             return ResponseEntity.ok().build();
-        } catch (PrescriptionNotFoundException exception){
+        } catch (PrescriptionNotFoundException exception) {
             return ResponseEntity.status(404).body(exception.getMessage());
         }
     }
 
-    @PutMapping("/invalidate")
+    @PutMapping()
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DOCTOR')")
-    public ResponseEntity<?> changeValidationPrescriptions(@RequestBody List<Integer> prescription_ids,
-                                                           @RequestParam boolean valid){
+    public ResponseEntity<?> changeValidationPrescriptions(@RequestBody List<Integer> prescription_ids, @RequestParam boolean valid) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = ((User) authentication.getPrincipal()).getUsername();
 
-        try{
+        try {
             prescriptionsService.changeValidationPrescriptions(username, prescription_ids, valid);
             return ResponseEntity.ok().build();
-        } catch (PrescriptionNotFoundException | DoctorNotFoundException exception){
+        } catch (PrescriptionNotFoundException | DoctorNotFoundException exception) {
             return ResponseEntity.status(404).body(exception.getMessage());
         }
     }
