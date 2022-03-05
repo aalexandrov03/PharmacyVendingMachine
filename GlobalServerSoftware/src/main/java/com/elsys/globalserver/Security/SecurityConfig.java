@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(getDaoAuthenticationProvider());
         auth.inMemoryAuthentication()
-                .withUser("admin")
+                .withUser("admin@gmail.com")
                 .roles("ADMIN")
                 .password(passwordEncoder.encode("admin"))
                 .credentialsExpired(false)
