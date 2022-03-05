@@ -95,7 +95,7 @@ public class PrescriptionsService {
     }
 
     public void changeValidationPrescriptions(String username, List<Integer> prescription_ids, boolean valid)
-            throws PrescriptionNotFoundException, DoctorNotFoundException {
+            throws PrescriptionNotFoundException{
         List<Prescription> prescriptions = prescriptionsRepository.findByDoctor(username);
 
         for (int prescription_id : prescription_ids) {

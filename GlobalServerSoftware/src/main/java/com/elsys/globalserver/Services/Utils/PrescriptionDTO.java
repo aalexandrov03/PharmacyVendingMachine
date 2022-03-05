@@ -8,12 +8,14 @@ import java.util.*;
 
 @Getter
 public class PrescriptionDTO {
+    private final int id;
     private final boolean valid;
     private final String doctor;
     private final String patient;
     private final List<MedicineQuantity> medicines;
 
     public PrescriptionDTO(Prescription prescription) {
+        this.id = prescription.getId();
         this.valid = prescription.isValid();
         this.doctor = prescription.getDoctor();
         this.patient = prescription.getPatient();

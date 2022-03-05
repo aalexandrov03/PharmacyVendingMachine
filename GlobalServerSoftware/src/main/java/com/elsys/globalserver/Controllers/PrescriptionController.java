@@ -94,7 +94,7 @@ public class PrescriptionController {
     }
 
     @PutMapping()
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_DOCTOR')")
+    @PreAuthorize("hasAnyRole('ROLE_DOCTOR')")
     public ResponseEntity<?> changeValidationPrescriptions(@RequestBody List<Integer> prescription_ids, @RequestParam boolean valid) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = ((User) authentication.getPrincipal()).getUsername();
@@ -102,7 +102,7 @@ public class PrescriptionController {
         try {
             prescriptionsService.changeValidationPrescriptions(username, prescription_ids, valid);
             return ResponseEntity.ok().build();
-        } catch (PrescriptionNotFoundException | DoctorNotFoundException exception) {
+        } catch (PrescriptionNotFoundException exception) {
             return ResponseEntity.status(404).body(exception.getMessage());
         }
     }
