@@ -74,7 +74,7 @@ public class ConfigurationController {
             return ResponseEntity.ok().build();
         } catch(IOException e){
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Unexpected error occured!");
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
         }
     }
 
@@ -97,7 +97,7 @@ public class ConfigurationController {
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Unexpected error occured!");
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
         }
     }
 
@@ -109,7 +109,30 @@ public class ConfigurationController {
             return ResponseEntity.ok().build();
         } catch(IOException e){
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Unexpected error occured!");
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
+        }
+    }
+
+    @GetMapping("/server")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getServerAddress(){
+        try {
+            return ResponseEntity.ok().body(configurationService.getServerAddress());
+        } catch(IOException e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
+        }
+    }
+
+    @PostMapping("/server")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> setServerAddress(@RequestBody String server){
+        try{
+            configurationService.setServerAddress(server);
+            return ResponseEntity.ok().build();
+        } catch (IOException e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
         }
     }
 }

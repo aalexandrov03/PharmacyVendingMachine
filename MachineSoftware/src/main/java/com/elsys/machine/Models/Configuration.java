@@ -14,4 +14,5 @@ public class Configuration {
     private String update_date;
     private List<Mapping> mapping;
     private RouterSettings settings;
+    private String server_address;
 }
