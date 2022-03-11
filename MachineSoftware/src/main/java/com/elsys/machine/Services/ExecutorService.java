@@ -7,11 +7,8 @@ import com.elsys.machine.Controllers.Utils.Prescription;
 import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Services.Utils.ValidationResult;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.GetRequest;
-import com.mashape.unirest.request.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +30,9 @@ public class ExecutorService {
         this.configurationService = configurationService;
     }
 
-    public Optional<Prescription> getPrescriptionFromServer(int prescription_id) throws UnirestException {
-        HttpResponse<Prescription> response = Unirest.get("http://localhost:8081/prescriptions/{prescription_id}")
+    public Optional<Prescription> getPrescriptionFromServer(int prescription_id) throws UnirestException, IOException {
+        HttpResponse<Prescription> response = Unirest.get(configurationService.getServerAddress()
+                        + "/prescriptions/{prescription_id}")
                 .routeParam("prescription_id", String.valueOf(prescription_id))
                 .basicAuth("machine", "machine").asObject(Prescription.class);
 
@@ -56,15 +54,13 @@ public class ExecutorService {
             }
         }
 
-        if (count == 0)
-            return NOT_AVAILABLE;
-        else if (count == prescription.getMedicines().size())
+        if (count == prescription.getMedicines().size())
             return OK;
         else
-            return PARTLY_AVAILABLE;
+            return NOT_AVAILABLE;
     }
 
-    public ValidationResult executePrescription(Prescription prescription) throws IOException {
+    public ValidationResult executePrescription(Prescription prescription) throws Exception {
         ValidationResult status = checkPrescription(prescription);
 
         switch(status){
@@ -79,8 +75,16 @@ public class ExecutorService {
                     Executor.getExecutor().execute(route);
                 }
 
+                List<Medicine> medicines = medicineService.getMedicines("both");
+                for (Medicine medicine : medicines)
+                    for (Medicine medicine1 : prescription.getMedicines())
+                        if (medicine1.equals(medicine)) {
+                            medicine.setAmount(medicine.getAmount() - medicine1.getAmount());
+                            medicineService.updateMedicine(medicine.getName(), medicine);
+                            break;
+                        }
+
             case INVALID:
-            case PARTLY_AVAILABLE:
             case NOT_AVAILABLE:
             default:
                 return status;

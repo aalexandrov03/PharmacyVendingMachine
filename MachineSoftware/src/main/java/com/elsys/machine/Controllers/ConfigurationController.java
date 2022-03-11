@@ -128,7 +128,7 @@ public class ConfigurationController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> setServerAddress(@RequestBody String server){
         try{
-            configurationService.setServerAddress(server);
+            configurationService.setServerAddress(server.substring(1, server.length()-1));
             return ResponseEntity.ok().build();
         } catch (IOException e){
             e.printStackTrace();

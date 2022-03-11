@@ -7,7 +7,6 @@ public enum ValidationResult {
     OK(0,"Prescription is ok!"),
     SHUTDOWN(-1,"Machine shut down"),
     INVALID(1,"Prescription is invalid"),
-    PARTLY_AVAILABLE(2,"Medicines are partly available!"),
     NOT_AVAILABLE(3, "Medicines are not available!");
 
     private final String message;
