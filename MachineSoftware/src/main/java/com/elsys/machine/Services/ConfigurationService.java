@@ -69,7 +69,7 @@ public class ConfigurationService {
         configurationRepository.write(configFileName, configuration);
     }
 
-    public void deleteRouterMapping() throws IOException{
+    public void deleteRouterMapping() throws IOException {
         Configuration configuration = configurationRepository.read(configFileName);
         configuration.setMapping(new ArrayList<>());
         configuration.setUpdate_date(LocalDateTime.now().toString());

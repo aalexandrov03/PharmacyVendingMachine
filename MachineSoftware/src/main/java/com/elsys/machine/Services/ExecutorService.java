@@ -63,7 +63,7 @@ public class ExecutorService {
     public ValidationResult executePrescription(Prescription prescription) throws Exception {
         ValidationResult status = checkPrescription(prescription);
 
-        switch(status){
+        switch (status) {
             case OK:
                 if (!configurationService.getStatus())
                     return SHUTDOWN;
@@ -71,7 +71,7 @@ public class ExecutorService {
                 Router router = new Router(configurationService.getConfiguration());
                 List<RouteNode> route = router.createRoute(prescription.getMedicines());
 
-                synchronized (Executor.getExecutor()){
+                synchronized (Executor.getExecutor()) {
                     Executor.getExecutor().execute(route);
                 }
 
