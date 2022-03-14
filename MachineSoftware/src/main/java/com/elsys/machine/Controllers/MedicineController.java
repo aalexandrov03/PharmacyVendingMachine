@@ -32,7 +32,7 @@ public class MedicineController {
     public ResponseEntity<?> addMedicine(@RequestBody Medicine medicine) {
         try {
             medicineService.addMedicine(medicine);
-            return ResponseEntity.status(201).build();
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(302).body(e.getMessage());
         }
@@ -43,7 +43,7 @@ public class MedicineController {
     public ResponseEntity<?> deleteMedicine(@RequestParam String name) {
         try {
             medicineService.deleteMedicine(name);
-            return ResponseEntity.status(200).build();
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
