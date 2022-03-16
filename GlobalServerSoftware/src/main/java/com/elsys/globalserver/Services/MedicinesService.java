@@ -48,4 +48,14 @@ public class MedicinesService {
             medicinesRepository.deleteById(medicine.get().getId());
         }
     }
+
+    public void updateMedicine(String name, Medicine medicine) throws MedicineNotFoundException {
+        Optional<Medicine> medicine1 = medicinesRepository.findByName(name);
+
+        if (medicine1.isEmpty())
+            throw new MedicineNotFoundException();
+
+        medicine1.get().setMedicine(medicine);
+        medicinesRepository.save(medicine1.get());
+    }
 }

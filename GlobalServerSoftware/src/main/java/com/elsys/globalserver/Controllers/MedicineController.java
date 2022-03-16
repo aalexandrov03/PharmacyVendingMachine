@@ -49,4 +49,16 @@ public class MedicineController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+    @PutMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateMedicine(@RequestParam String name,
+                                            @RequestBody Medicine medicine){
+        try{
+            medicinesService.updateMedicine(name, medicine);
+            return ResponseEntity.ok().build();
+        } catch (MedicineNotFoundException e){
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
 }

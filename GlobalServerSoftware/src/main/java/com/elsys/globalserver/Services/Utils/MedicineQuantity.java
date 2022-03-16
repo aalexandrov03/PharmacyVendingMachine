@@ -14,7 +14,6 @@ public class MedicineQuantity {
 
     public MedicineQuantity(Medicine medicine, int quantity) {
         this.name = medicine.getName();
-        this.price = medicine.getPrice();
         this.needsPrescription = medicine.isNeedsPrescription();
         this.quantity = quantity;
     }
