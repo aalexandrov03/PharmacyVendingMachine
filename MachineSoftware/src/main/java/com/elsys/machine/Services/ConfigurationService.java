@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -67,10 +69,23 @@ public class ConfigurationService {
         configurationRepository.write(configFileName, configuration);
     }
 
-    public void deleteRouterMapping() throws IOException{
+    public void deleteRouterMapping() throws IOException {
         Configuration configuration = configurationRepository.read(configFileName);
         configuration.setMapping(new ArrayList<>());
         configuration.setUpdate_date(LocalDateTime.now().toString());
         configurationRepository.write(configFileName, configuration);
+    }
+
+    public void setServerAddress(String address) throws IOException {
+        Configuration configuration = configurationRepository.read(configFileName);
+        configuration.setServer_address(
+                Base64.getEncoder().encodeToString(address.getBytes())
+        );
+        configuration.setUpdate_date(LocalDateTime.now().toString());
+        configurationRepository.write(configFileName, configuration);
+    }
+
+    public String getServerAddress() throws IOException {
+        return new String(Base64.getDecoder().decode(configurationRepository.read(configFileName).getServer_address()));
     }
 }

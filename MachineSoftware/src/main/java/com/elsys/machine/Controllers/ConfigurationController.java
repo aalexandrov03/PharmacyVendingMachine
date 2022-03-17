@@ -22,7 +22,7 @@ public class ConfigurationController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<?> getStatus(){
+    public ResponseEntity<?> getStatus() {
         try {
             return ResponseEntity.ok().body(configurationService.getStatus());
         } catch (IOException e) {
@@ -33,7 +33,7 @@ public class ConfigurationController {
 
     @PostMapping("/status")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> setStatus(@RequestParam boolean value){
+    public ResponseEntity<?> setStatus(@RequestParam boolean value) {
         try {
             configurationService.setStatus(value);
             return ResponseEntity.ok().build();
@@ -45,7 +45,7 @@ public class ConfigurationController {
 
     @GetMapping("/router/mapping")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getMapping(){
+    public ResponseEntity<?> getMapping() {
         try {
             return ResponseEntity.ok().body(configurationService.getMapping());
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class ConfigurationController {
 
     @PostMapping("/router/mapping")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> setMapping(@RequestBody List<Mapping> mapping){
+    public ResponseEntity<?> setMapping(@RequestBody List<Mapping> mapping) {
         try {
             configurationService.setMapping(mapping);
             return ResponseEntity.ok().build();
@@ -68,22 +68,22 @@ public class ConfigurationController {
 
     @DeleteMapping("/router/mapping")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteRouterMapping(){
+    public ResponseEntity<?> deleteRouterMapping() {
         try {
             configurationService.deleteRouterMapping();
             return ResponseEntity.ok().build();
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Unexpected error occured!");
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
         }
     }
 
     @GetMapping("/router/settings")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getRouterSettings(){
-        try{
+    public ResponseEntity<?> getRouterSettings() {
+        try {
             return ResponseEntity.ok().body(configurationService.getRouterSettings());
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
@@ -91,25 +91,48 @@ public class ConfigurationController {
 
     @PostMapping("/router/settings")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> setRouterSettings(@RequestBody RouterSettings settings){
+    public ResponseEntity<?> setRouterSettings(@RequestBody RouterSettings settings) {
         try {
             configurationService.setRouterSettings(settings);
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Unexpected error occured!");
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
         }
     }
 
     @DeleteMapping("/router/settings")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteRouterSettings(){
+    public ResponseEntity<?> deleteRouterSettings() {
         try {
             configurationService.deleteRouterSettings();
             return ResponseEntity.ok().build();
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Unexpected error occured!");
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
+        }
+    }
+
+    @GetMapping("/server")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getServerAddress() {
+        try {
+            return ResponseEntity.ok().body(configurationService.getServerAddress());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
+        }
+    }
+
+    @PostMapping("/server")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> setServerAddress(@RequestBody String server) {
+        try {
+            configurationService.setServerAddress(server.substring(1, server.length() - 1));
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Unexpected error occurred!");
         }
     }
 }

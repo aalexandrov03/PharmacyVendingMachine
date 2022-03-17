@@ -19,32 +19,32 @@ public class MedicineController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getMedicines(@RequestParam String prescription){
-        try{
+    public ResponseEntity<?> getMedicines(@RequestParam String prescription) {
+        try {
             return ResponseEntity.ok().body(medicineService.getMedicines(prescription));
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> addMedicine(@RequestBody Medicine medicine){
-        try{
+    public ResponseEntity<?> addMedicine(@RequestBody Medicine medicine) {
+        try {
             medicineService.addMedicine(medicine);
-            return ResponseEntity.status(201).build();
-        } catch(Exception e){
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
             return ResponseEntity.status(302).body(e.getMessage());
         }
     }
 
     @DeleteMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteMedicine(@RequestParam String name){
-        try{
+    public ResponseEntity<?> deleteMedicine(@RequestParam String name) {
+        try {
             medicineService.deleteMedicine(name);
-            return ResponseEntity.status(200).build();
-        } catch(Exception e){
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
@@ -52,11 +52,11 @@ public class MedicineController {
     @PutMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateMedicine(@RequestBody Medicine medicine,
-                                            @RequestParam String name){
-        try{
+                                            @RequestParam String name) {
+        try {
             medicineService.updateMedicine(name, medicine);
             return ResponseEntity.ok().build();
-        } catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }

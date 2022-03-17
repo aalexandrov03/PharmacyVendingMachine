@@ -22,8 +22,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("admin")
-                .password(passwordEncoder.encode("admin"))
+                .withUser("admin@gmail.com")
+                .password(passwordEncoder.encode("admin123"))
                 .roles("ADMIN")
                 .credentialsExpired(false)
                 .accountLocked(false)
@@ -36,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/configuration/status").permitAll()
                 .antMatchers(HttpMethod.GET, "/medicines").permitAll()
                 .antMatchers(HttpMethod.POST, "/executor").permitAll()

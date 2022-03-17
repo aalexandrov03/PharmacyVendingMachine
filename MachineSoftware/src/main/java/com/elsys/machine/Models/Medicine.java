@@ -50,7 +50,7 @@ public class Medicine {
         return Objects.hash(name, price, needsPrescription);
     }
 
-    public void setMedicine(Medicine medicine){
+    public void setMedicine(Medicine medicine) {
         this.name = medicine.getName();
         this.amount = medicine.getAmount();
         this.price = medicine.getPrice();

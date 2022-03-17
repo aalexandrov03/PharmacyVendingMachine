@@ -12,7 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PrescriptionDTO {
+public class Prescription {
     private boolean valid;
     private Set<Medicine> medicines;
 }
