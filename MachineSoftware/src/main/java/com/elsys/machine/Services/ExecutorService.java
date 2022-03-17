@@ -67,8 +67,8 @@ public class ExecutorService {
             return NOT_AVAILABLE;
     }
 
-    public ValidationResult executePrescription(Prescription prescription) throws Exception {
-        ValidationResult status = checkPrescription(prescription);
+    public ValidationResult executePrescription(Prescription prescription, boolean fetch) throws Exception {
+        ValidationResult status = checkPrescription(prescription, fetch);
 
         switch (status) {
             case OK:
@@ -91,8 +91,6 @@ public class ExecutorService {
                             break;
                         }
 
-            case INVALID:
-            case NOT_AVAILABLE:
             default:
                 return status;
         }
