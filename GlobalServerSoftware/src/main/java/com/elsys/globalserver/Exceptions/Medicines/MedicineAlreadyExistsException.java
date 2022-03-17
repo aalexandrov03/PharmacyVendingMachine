@@ -1,14 +1,11 @@
 package com.elsys.globalserver.Exceptions.Medicines;
 
-import com.elsys.globalserver.Models.Medicine;
-import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+@NoArgsConstructor
 public class MedicineAlreadyExistsException extends Exception{
-    private final Medicine duplicate_medicine;
-
     @Override
     public String getMessage(){
-        return duplicate_medicine + " already exists!";
+        return "Medicine already exists!";
     }
 }

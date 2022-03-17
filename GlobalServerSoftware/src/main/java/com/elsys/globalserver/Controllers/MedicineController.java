@@ -33,7 +33,7 @@ public class MedicineController {
     public ResponseEntity<?> addMedicines(@RequestBody List<Medicine> medicines){
         try{
             medicinesService.addMedicines(medicines);
-            return ResponseEntity.status(201).build();
+            return ResponseEntity.ok().build();
         } catch (MedicineAlreadyExistsException e){
             return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());
         }
@@ -41,9 +41,21 @@ public class MedicineController {
 
     @DeleteMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteMedicines(@RequestBody List<Integer> medicine_ids){
+    public ResponseEntity<?> deleteMedicines(@RequestBody List<String> medicines){
         try{
-            medicinesService.deleteMedicines(medicine_ids);
+            medicinesService.deleteMedicines(medicines);
+            return ResponseEntity.ok().build();
+        } catch (MedicineNotFoundException e){
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @PutMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateMedicine(@RequestParam String name,
+                                            @RequestBody Medicine medicine){
+        try{
+            medicinesService.updateMedicine(name, medicine);
             return ResponseEntity.ok().build();
         } catch (MedicineNotFoundException e){
             return ResponseEntity.status(404).body(e.getMessage());

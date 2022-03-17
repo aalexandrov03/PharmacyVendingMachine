@@ -30,20 +30,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .formLogin().permitAll();
+                .httpBasic();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(getDaoAuthenticationProvider());
         auth.inMemoryAuthentication()
-                .withUser("admin")
+                .withUser("admin@gmail.com")
                 .roles("ADMIN")
                 .password(passwordEncoder.encode("admin"))
+                .credentialsExpired(false)
+                .accountLocked(false)
+                .accountExpired(false)
+                .disabled(false)
+            .and()
+                .withUser("machine")
+                .roles("MACHINE")
+                .password(passwordEncoder.encode("machine"))
                 .credentialsExpired(false)
                 .accountLocked(false)
                 .accountExpired(false)

@@ -2,10 +2,12 @@ package com.elsys.globalserver.DataAccess;
 
 import com.elsys.globalserver.Models.Prescription;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface PrescriptionRepository extends CrudRepository<Prescription, Integer> {
-    List<Prescription> findByDoctorId(int doctor_id);
-    List<Prescription> findByPatientId(int patientId);
+    List<Prescription> findByDoctor(String doctor);
+    List<Prescription> findByPatient(String patient);
 }

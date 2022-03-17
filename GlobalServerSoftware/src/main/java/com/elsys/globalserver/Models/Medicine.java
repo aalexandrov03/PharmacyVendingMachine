@@ -18,35 +18,38 @@ import java.util.Objects;
 public class Medicine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private int id;
     @Column(nullable = false, unique = true)
     private String name;
-    @Column(nullable = false)
-    private double price;
     @Column(nullable = false)
     private boolean needsPrescription;
     @ManyToMany(mappedBy = "medicines")
     @JsonIgnore
     private List<Prescription> prescriptions = new ArrayList<>();
 
+    public void setMedicine(Medicine medicine){
+        this.name = medicine.getName();
+        this.needsPrescription = medicine.isNeedsPrescription();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Medicine medicine = (Medicine) o;
-        return Double.compare(medicine.price, price) == 0 && needsPrescription == medicine.needsPrescription && name.equals(medicine.name);
+        return needsPrescription == medicine.needsPrescription && name.equals(medicine.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, price, needsPrescription);
+        return Objects.hash(name, needsPrescription);
     }
 
     @Override
     public String toString() {
         return "Medicine{" +
                 "name='" + name + '\'' +
-                ", price=" + price +
                 ", needsPrescription=" + needsPrescription +
                 '}';
     }

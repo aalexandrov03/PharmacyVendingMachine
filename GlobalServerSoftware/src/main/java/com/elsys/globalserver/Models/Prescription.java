@@ -17,9 +17,9 @@ public class Prescription {
     @Column(nullable = false)
     private boolean valid;
     @Column(nullable = false)
-    private int doctorId;
+    private String doctor;
     @Column(nullable = false)
-    private int patientId;
+    private String patient;
 
     @ManyToMany
     @JoinTable(
@@ -29,17 +29,13 @@ public class Prescription {
     )
     private List<Medicine> medicines = new ArrayList<>();
 
-    public Prescription(){
+    public Prescription() {
         this.valid = true;
     }
 
-    public Prescription(int doctorId, int patientId) {
+    public Prescription(String doctor, String patient) {
         this.valid = true;
-        this.doctorId = doctorId;
-        this.patientId = patientId;
-    }
-
-    public void addMedicine(Medicine medicine) {
-        medicines.add(medicine);
+        this.doctor = doctor;
+        this.patient = patient;
     }
 }
