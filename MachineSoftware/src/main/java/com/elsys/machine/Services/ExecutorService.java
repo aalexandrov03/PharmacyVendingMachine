@@ -6,7 +6,9 @@ import com.elsys.machine.Control.Utils.RouteNode;
 import com.elsys.machine.Controllers.Utils.Prescription;
 import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Services.Utils.ValidationResult;
+import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +32,22 @@ public class ExecutorService {
         this.configurationService = configurationService;
     }
 
-    public Optional<Prescription> getPrescriptionFromServer(int prescription_id) throws UnirestException, IOException {
-        HttpResponse<Prescription> response = Unirest.get(configurationService.getServerAddress()
-                        + "/prescriptions/{prescription_id}")
+    public Optional<Prescription> getPrescriptionFromServer(int prescription_id)
+            throws UnirestException, IOException {
+        HttpResponse<JsonNode> response = Unirest.get(configurationService.getServerAddress()
+                        + "/prescriptions/machine/{prescription_id}")
+                .basicAuth("machine", "machine")
                 .routeParam("prescription_id", String.valueOf(prescription_id))
-                .basicAuth("machine", "machine").asObject(Prescription.class);
+                .asJson();
 
-        return Optional.of(response.getBody());
+        if (response.getStatus() != 200)
+            return Optional.empty();
+
+        return Optional.of(new Gson().fromJson(response.getBody().toString(), Prescription.class));
     }
 
-    private ValidationResult checkPrescription(Prescription prescription) {
-        List<Medicine> medicines = medicineService.getMedicines("both");
+    private ValidationResult checkPrescription(Prescription prescription, boolean fetch) {
+        List<Medicine> medicines = medicineService.getMedicines(fetch ? "both" : "no");
 
         if (!prescription.isValid())
             return INVALID;
