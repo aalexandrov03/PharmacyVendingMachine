@@ -33,9 +33,9 @@ public class BugController {
 
     @DeleteMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> clearBug(@RequestBody int bug_id){
+    public ResponseEntity<?> clearBug(@RequestParam int id){
         try{
-            bugService.clearBug(bug_id);
+            bugService.clearBug(id);
             return ResponseEntity.ok().build();
         } catch(BugNotFoundException e){
             return ResponseEntity.status(404).body(e.getMessage());

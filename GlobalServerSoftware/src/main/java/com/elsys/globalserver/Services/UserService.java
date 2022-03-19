@@ -1,8 +1,10 @@
 package com.elsys.globalserver.Services;
 
-import com.elsys.globalserver.DataAccess.UserRepository;
+import com.elsys.globalserver.DataAccess.DoctorRepository;
+import com.elsys.globalserver.DataAccess.PatientRepository;
 import com.elsys.globalserver.Exceptions.Users.*;
-import com.elsys.globalserver.Models.User;
+import com.elsys.globalserver.Models.Doctor;
+import com.elsys.globalserver.Models.Patient;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -15,39 +17,33 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Service
-public class UsersService {
-    private final UserRepository userRepository;
+public class UserService {
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsersService(UserRepository userRepository,
-                        PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public UserService(PatientRepository patientRepository,
+                       DoctorRepository doctorRepository,
+                       PasswordEncoder passwordEncoder) {
+        this.patientRepository = patientRepository;
+        this.doctorRepository = doctorRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void registerPatient(User patient) throws PatientAlreadyExistsException{
+    public void registerPatient(Patient patient) throws PatientAlreadyExistsException{
         patient.setPassword(passwordEncoder.encode(patient.getPassword()));
-        Optional<User> patient1 = userRepository.findUserByEmail(patient.getEmail());
+        Optional<Patient> patient1 = patientRepository.findByEmail(patient.getEmail());
 
         if (patient1.isPresent())
             throw new PatientAlreadyExistsException();
 
-        userRepository.save(patient);
+        patientRepository.save(patient);
     }
 
-    public User getPatientInfo(String email) throws PatientNotFoundException {
-        Optional<User> patient = userRepository.findUserByEmail(email);
-
-        if (patient.isEmpty())
-            throw new PatientNotFoundException();
-
-        return patient.get();
-    }
-
-    public void registerDoctor(User doctor) throws Exception {
+    public void registerDoctor(Doctor doctor) throws Exception {
         doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
-        Optional<User> doctor1 = userRepository.findUserByEmail(doctor.getEmail());
+        Optional<Doctor> doctor1 = doctorRepository.findByEmail(doctor.getEmail());
 
         if (doctor1.isPresent())
             throw new DoctorAlreadyExistsException();
@@ -55,12 +51,30 @@ public class UsersService {
         boolean status = checkDoctor(doctor);
 
         if (status)
-            userRepository.save(doctor);
+            doctorRepository.save(doctor);
         else
             throw new Exception("Doctor check failed!");
     }
 
-    private boolean checkDoctor(User doctor) {
+    public Patient getPatientInfo(String email) throws PatientNotFoundException {
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+
+        if (patient.isEmpty())
+            throw new PatientNotFoundException();
+
+        return patient.get();
+    }
+
+    public Doctor getDoctorInfo(String email) throws DoctorNotFoundException {
+        Optional<Doctor> doctor = doctorRepository.findByEmail(email);
+
+        if (doctor.isEmpty())
+            throw new DoctorNotFoundException();
+
+        return doctor.get();
+    }
+
+    private boolean checkDoctor(Doctor doctor) {
         WebClient client = new WebClient(BrowserVersion.CHROME);
         client.getOptions().setCssEnabled(false);
         client.getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -86,16 +100,9 @@ public class UsersService {
         if (node.getRowCount() == 1)
             return false;
 
-        String name = node.getRow(1).getCell(2).asNormalizedText();
-        return name.contains(doctor.getFullName());
-    }
+        String name = node.getRow(1).getCell(2).asNormalizedText().replace("д-р ", "");
+        String region = node.getRow(1).getCell(3).asNormalizedText();
 
-    public User getDoctorInfo(String email) throws DoctorNotFoundException {
-        Optional<User> doctor = userRepository.findUserByEmail(email);
-
-        if (doctor.isEmpty())
-            throw new DoctorNotFoundException();
-
-        return doctor.get();
+        return name.equals(doctor.getFullName()) && region.equals(doctor.getRegion());
     }
 }

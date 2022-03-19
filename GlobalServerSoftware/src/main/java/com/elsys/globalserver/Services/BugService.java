@@ -27,7 +27,7 @@ public class BugService {
 
     public void clearBug(int id) throws BugNotFoundException {
         if (bugsRepository.findById(id).isEmpty())
-            throw new BugNotFoundException(id);
+            throw new BugNotFoundException();
 
         bugsRepository.deleteById(id);
     }

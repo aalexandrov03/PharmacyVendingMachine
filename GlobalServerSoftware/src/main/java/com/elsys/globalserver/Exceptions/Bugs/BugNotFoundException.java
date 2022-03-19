@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class BugNotFoundException extends Exception{
-    private final int id;
-
     @Override
     public String getMessage(){
-        return "Bug with ID: " + id + " does not exist!";
+        return "Bug does not exist!";
     }
 }
