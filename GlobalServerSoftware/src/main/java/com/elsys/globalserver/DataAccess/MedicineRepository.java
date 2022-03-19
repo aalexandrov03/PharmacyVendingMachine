@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface MedicineRepository extends CrudRepository<Medicine, Integer> {
     Optional<Medicine> findByName(String name);
+    void deleteByName(String name);
 }
