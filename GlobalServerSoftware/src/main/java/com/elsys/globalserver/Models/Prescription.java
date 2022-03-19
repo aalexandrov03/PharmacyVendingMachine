@@ -6,6 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -37,5 +38,21 @@ public class Prescription {
         this.valid = true;
         this.doctor = doctor;
         this.patient = patient;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Prescription that = (Prescription) o;
+        return valid == that.valid
+                && Objects.equals(doctor, that.doctor)
+                && Objects.equals(patient, that.patient)
+                && medicines.containsAll(that.medicines);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(valid, doctor, patient, medicines);
     }
 }
