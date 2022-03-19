@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -31,4 +32,21 @@ public class Doctor {
 
     @Column(nullable = false, unique = true)
     private Long uin;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Doctor doctor = (Doctor) o;
+        return Objects.equals(fullName, doctor.fullName)
+                && Objects.equals(email, doctor.email)
+                && Objects.equals(password, doctor.password)
+                && Objects.equals(region, doctor.region)
+                && Objects.equals(uin, doctor.uin);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fullName, email, password, region, uin);
+    }
 }
