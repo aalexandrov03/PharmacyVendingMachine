@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 public class MedicineQuantity {
     private String name;
-    private double price;
     private boolean needsPrescription;
     private int quantity;
 
