@@ -36,4 +36,20 @@ public class PrescriptionDTO {
 
         return list;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PrescriptionDTO that = (PrescriptionDTO) o;
+        return valid == that.valid
+                && Objects.equals(doctor, that.doctor)
+                && Objects.equals(patient, that.patient)
+                && medicines.containsAll(that.medicines);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(valid, doctor, patient, medicines);
+    }
 }
