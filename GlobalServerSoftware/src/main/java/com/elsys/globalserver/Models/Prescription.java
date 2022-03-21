@@ -22,7 +22,7 @@ public class Prescription {
     @Column(nullable = false)
     private String patient;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "medicines_prescriptions",
             joinColumns = @JoinColumn(name = "medicine_id"),

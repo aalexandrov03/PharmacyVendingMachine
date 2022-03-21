@@ -40,7 +40,6 @@ public class Doctor {
         Doctor doctor = (Doctor) o;
         return Objects.equals(fullName, doctor.fullName)
                 && Objects.equals(email, doctor.email)
-                && Objects.equals(password, doctor.password)
                 && Objects.equals(region, doctor.region)
                 && Objects.equals(uin, doctor.uin);
     }

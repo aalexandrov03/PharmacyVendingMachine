@@ -2,12 +2,14 @@ package com.elsys.globalserver.Services.Utils;
 
 import com.elsys.globalserver.Models.Medicine;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class MedicineQuantity {
     private String name;
     private boolean needsPrescription;

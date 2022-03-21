@@ -3,16 +3,18 @@ package com.elsys.globalserver.Services.Utils;
 import com.elsys.globalserver.Models.Medicine;
 import com.elsys.globalserver.Models.Prescription;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 
 @Getter
+@NoArgsConstructor
 public class PrescriptionDTO {
-    private final int id;
-    private final boolean valid;
-    private final String doctor;
-    private final String patient;
-    private final List<MedicineQuantity> medicines;
+    private int id;
+    private boolean valid;
+    private String doctor;
+    private String patient;
+    private List<MedicineQuantity> medicines;
 
     public PrescriptionDTO(Prescription prescription) {
         this.id = prescription.getId();
