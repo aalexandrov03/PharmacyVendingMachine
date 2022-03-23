@@ -122,7 +122,12 @@ public class ConfigurationService {
                     return medicine.get();
                 }).collect(Collectors.toList());
 
+        List<Long> invalidSlotIDs = mappings.stream()
+                .map(Mapping::getSlotID).filter(id -> id < 0)
+                .collect(Collectors.toList());
+
         return availableMedicines.size() == mappedMedicines.size() &&
-                availableMedicines.containsAll(mappedMedicines);
+                availableMedicines.containsAll(mappedMedicines) &&
+                invalidSlotIDs.isEmpty();
     }
 }
