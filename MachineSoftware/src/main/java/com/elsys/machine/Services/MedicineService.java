@@ -15,7 +15,7 @@ public class MedicineService {
     private final MedicinesRepository medicinesRepository;
 
     @Autowired
-    private MedicineService(MedicinesRepository medicinesRepository) {
+    public MedicineService(MedicinesRepository medicinesRepository) {
         this.medicinesRepository = medicinesRepository;
     }
 

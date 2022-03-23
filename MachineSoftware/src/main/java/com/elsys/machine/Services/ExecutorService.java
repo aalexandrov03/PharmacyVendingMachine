@@ -70,29 +70,27 @@ public class ExecutorService {
     public ValidationResult executePrescription(Prescription prescription, boolean fetch) throws Exception {
         ValidationResult status = checkPrescription(prescription, fetch);
 
-        switch (status) {
-            case OK:
-                if (!configurationService.getStatus())
-                    return SHUTDOWN;
+        if (status == OK) {
+            if (!configurationService.getStatus())
+                return SHUTDOWN;
 
-                Router router = new Router(configurationService.getConfiguration());
-                List<RouteNode> route = router.createRoute(prescription.getMedicines());
+            Router router = new Router(configurationService.getConfiguration());
+            List<RouteNode> route = router.createRoute(prescription.getMedicines());
 
-                synchronized (Executor.getExecutor()) {
-                    Executor.getExecutor().execute(route);
-                }
+            synchronized (Executor.getExecutor()) {
+                Executor.getExecutor().execute(route);
+            }
 
-                List<Medicine> medicines = medicineService.getMedicines("both");
-                for (Medicine medicine : medicines)
-                    for (Medicine medicine1 : prescription.getMedicines())
-                        if (medicine1.equals(medicine)) {
-                            medicine.setAmount(medicine.getAmount() - medicine1.getAmount());
-                            medicineService.updateMedicine(medicine.getName(), medicine);
-                            break;
-                        }
-
-            default:
-                return status;
+            List<Medicine> medicines = medicineService.getMedicines("both");
+            for (Medicine medicine : medicines)
+                for (Medicine medicine1 : prescription.getMedicines())
+                    if (medicine1.equals(medicine)) {
+                        medicine.setAmount(medicine.getAmount() - medicine1.getAmount());
+                        medicineService.updateMedicine(medicine.getName(), medicine);
+                        break;
+                    }
         }
+
+        return status;
     }
 }

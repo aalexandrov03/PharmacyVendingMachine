@@ -7,6 +7,5 @@ import java.util.Optional;
 
 public interface MedicinesRepository extends CrudRepository<Medicine, Integer> {
     Iterable<Medicine> findAllByNeedsPrescription(boolean needsPrescription);
-
     Optional<Medicine> findMedicineByName(String name);
 }
