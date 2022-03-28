@@ -63,6 +63,8 @@ public class ConfigurationController {
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
@@ -98,6 +100,8 @@ public class ConfigurationController {
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Unexpected error occurred!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 

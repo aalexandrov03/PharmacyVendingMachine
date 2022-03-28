@@ -36,7 +36,7 @@ public class ExecutorController {
                     if (prescription.isEmpty())
                         return ResponseEntity.internalServerError().body("Prescription does not exist in the server!");
 
-                    ValidationResult result = executorService.executePrescription(prescription.get());
+                    ValidationResult result = executorService.executePrescription(prescription.get(), true);
                     return ResponseEntity.ok().body(
                             new ValidationResultDTO(result.getStatus(), result.getMessage())
                     );
@@ -54,7 +54,7 @@ public class ExecutorController {
             if (order != null) {
                 try {
                     ValidationResult result = executorService.executePrescription(
-                            new Prescription(true, order)
+                            new Prescription(true, order), false
                     );
                     return ResponseEntity.ok().body(
                             new ValidationResultDTO(result.getStatus(), result.getMessage())

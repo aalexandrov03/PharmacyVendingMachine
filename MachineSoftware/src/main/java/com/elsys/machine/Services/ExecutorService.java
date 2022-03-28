@@ -6,7 +6,9 @@ import com.elsys.machine.Control.Utils.RouteNode;
 import com.elsys.machine.Controllers.Utils.Prescription;
 import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Services.Utils.ValidationResult;
+import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +32,22 @@ public class ExecutorService {
         this.configurationService = configurationService;
     }
 
-    public Optional<Prescription> getPrescriptionFromServer(int prescription_id) throws UnirestException, IOException {
-        HttpResponse<Prescription> response = Unirest.get(configurationService.getServerAddress()
-                        + "/prescriptions/{prescription_id}")
+    public Optional<Prescription> getPrescriptionFromServer(int prescription_id)
+            throws UnirestException, IOException {
+        HttpResponse<JsonNode> response = Unirest.get(configurationService.getServerAddress()
+                        + "/prescriptions/machine/{prescription_id}")
+                .basicAuth("machine", "machine")
                 .routeParam("prescription_id", String.valueOf(prescription_id))
-                .basicAuth("machine", "machine").asObject(Prescription.class);
+                .asJson();
 
-        return Optional.of(response.getBody());
+        if (response.getStatus() != 200)
+            return Optional.empty();
+
+        return Optional.of(new Gson().fromJson(response.getBody().toString(), Prescription.class));
     }
 
-    private ValidationResult checkPrescription(Prescription prescription) {
-        List<Medicine> medicines = medicineService.getMedicines("both");
+    private ValidationResult checkPrescription(Prescription prescription, boolean fetch) {
+        List<Medicine> medicines = medicineService.getMedicines(fetch ? "both" : "no");
 
         if (!prescription.isValid())
             return INVALID;
@@ -60,34 +67,30 @@ public class ExecutorService {
             return NOT_AVAILABLE;
     }
 
-    public ValidationResult executePrescription(Prescription prescription) throws Exception {
-        ValidationResult status = checkPrescription(prescription);
+    public ValidationResult executePrescription(Prescription prescription, boolean fetch) throws Exception {
+        ValidationResult status = checkPrescription(prescription, fetch);
 
-        switch (status) {
-            case OK:
-                if (!configurationService.getStatus())
-                    return SHUTDOWN;
+        if (status == OK) {
+            if (!configurationService.getStatus())
+                return SHUTDOWN;
 
-                Router router = new Router(configurationService.getConfiguration());
-                List<RouteNode> route = router.createRoute(prescription.getMedicines());
+            Router router = new Router(configurationService.getConfiguration());
+            List<RouteNode> route = router.createRoute(prescription.getMedicines());
 
-                synchronized (Executor.getExecutor()) {
-                    Executor.getExecutor().execute(route);
-                }
+            synchronized (Executor.getExecutor()) {
+                Executor.getExecutor().execute(route);
+            }
 
-                List<Medicine> medicines = medicineService.getMedicines("both");
-                for (Medicine medicine : medicines)
-                    for (Medicine medicine1 : prescription.getMedicines())
-                        if (medicine1.equals(medicine)) {
-                            medicine.setAmount(medicine.getAmount() - medicine1.getAmount());
-                            medicineService.updateMedicine(medicine.getName(), medicine);
-                            break;
-                        }
-
-            case INVALID:
-            case NOT_AVAILABLE:
-            default:
-                return status;
+            List<Medicine> medicines = medicineService.getMedicines("both");
+            for (Medicine medicine : medicines)
+                for (Medicine medicine1 : prescription.getMedicines())
+                    if (medicine1.equals(medicine)) {
+                        medicine.setAmount(medicine.getAmount() - medicine1.getAmount());
+                        medicineService.updateMedicine(medicine.getName(), medicine);
+                        break;
+                    }
         }
+
+        return status;
     }
 }

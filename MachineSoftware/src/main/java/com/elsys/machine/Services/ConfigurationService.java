@@ -1,26 +1,30 @@
 package com.elsys.machine.Services;
 
 import com.elsys.machine.DataAccess.ConfigurationRepository;
+import com.elsys.machine.DataAccess.MedicinesRepository;
 import com.elsys.machine.Models.Configuration;
 import com.elsys.machine.Models.Mapping;
+import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Models.RouterSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ConfigurationService {
+    private final MedicinesRepository medicinesRepository;
     private final ConfigurationRepository configurationRepository;
     private final String configFileName;
 
     @Autowired
-    public ConfigurationService(ConfigurationRepository configurationRepository) {
+    public ConfigurationService(MedicinesRepository medicinesRepository,
+                                ConfigurationRepository configurationRepository) {
+        this.medicinesRepository = medicinesRepository;
         this.configurationRepository = configurationRepository;
         this.configFileName = "configuration.yaml";
     }
@@ -40,7 +44,10 @@ public class ConfigurationService {
         return configurationRepository.read(configFileName).getMapping();
     }
 
-    public void setMapping(List<Mapping> newMapping) throws IOException {
+    public void setMapping(List<Mapping> newMapping) throws IOException, IllegalArgumentException {
+        if (!checkMapping(newMapping))
+            throw new IllegalArgumentException("Invalid mapping provided!");
+
         Configuration configuration = configurationRepository.read(configFileName);
         configuration.setMapping(newMapping);
         configuration.setUpdate_date(LocalDateTime.now().toString());
@@ -55,7 +62,10 @@ public class ConfigurationService {
         return configurationRepository.read(configFileName).getSettings();
     }
 
-    public void setRouterSettings(RouterSettings settings) throws IOException {
+    public void setRouterSettings(RouterSettings settings) throws IOException, IllegalArgumentException {
+        if (!checkRouterSettings(settings))
+            throw new IllegalArgumentException("Invalid router settings provided!");
+
         Configuration configuration = configurationRepository.read(configFileName);
         configuration.setSettings(settings);
         configuration.setUpdate_date(LocalDateTime.now().toString());
@@ -86,6 +96,38 @@ public class ConfigurationService {
     }
 
     public String getServerAddress() throws IOException {
-        return new String(Base64.getDecoder().decode(configurationRepository.read(configFileName).getServer_address()));
+        return new String(Base64.getDecoder().
+                decode(configurationRepository.read(configFileName).getServer_address()));
+    }
+
+    private boolean checkRouterSettings(RouterSettings routerSettings) {
+        return routerSettings.getRows() >= 0 && routerSettings.getColumns() >= 0 &&
+                routerSettings.getDistSlots() >= 0 && routerSettings.getDistRows() >= 0 &&
+                routerSettings.getStepsPerRev() >= 0 && routerSettings.getDistPerRev() >= 0;
+    }
+
+    private boolean checkMapping(List<Mapping> mappings) {
+        List<Medicine> availableMedicines = StreamSupport.stream(
+                medicinesRepository.findAll().spliterator(), false
+        ).collect(Collectors.toList());
+
+        List<Medicine> mappedMedicines = mappings.stream()
+                .map(mapping -> {
+                    Optional<Medicine> medicine
+                            = medicinesRepository.findMedicineByName(mapping.getMedicineName());
+
+                    if (medicine.isEmpty())
+                        return null;
+
+                    return medicine.get();
+                }).collect(Collectors.toList());
+
+        List<Long> invalidSlotIDs = mappings.stream()
+                .map(Mapping::getSlotID).filter(id -> id < 0)
+                .collect(Collectors.toList());
+
+        return availableMedicines.size() == mappedMedicines.size() &&
+                availableMedicines.containsAll(mappedMedicines) &&
+                invalidSlotIDs.isEmpty();
     }
 }
