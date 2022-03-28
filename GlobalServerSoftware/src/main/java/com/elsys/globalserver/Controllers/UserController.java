@@ -4,8 +4,9 @@ import com.elsys.globalserver.Exceptions.Users.DoctorAlreadyExistsException;
 import com.elsys.globalserver.Exceptions.Users.DoctorNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.PatientAlreadyExistsException;
 import com.elsys.globalserver.Exceptions.Users.PatientNotFoundException;
-import com.elsys.globalserver.Models.User;
-import com.elsys.globalserver.Services.UsersService;
+import com.elsys.globalserver.Models.Doctor;
+import com.elsys.globalserver.Models.Patient;
+import com.elsys.globalserver.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UsersService usersService;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UsersService usersService) {
-        this.usersService = usersService;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/patient")
@@ -32,7 +33,7 @@ public class UserController {
                 ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername();
 
         try {
-            return ResponseEntity.ok().body(usersService.getPatientInfo(email));
+            return ResponseEntity.ok().body(userService.getPatientInfo(email));
         } catch (PatientNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -44,18 +45,18 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email =
                 ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername();
-
+        
         try {
-            return ResponseEntity.ok().body(usersService.getDoctorInfo(email));
+            return ResponseEntity.ok().body(userService.getDoctorInfo(email));
         } catch (DoctorNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @PostMapping("/patient")
-    public ResponseEntity<?> registerPatient(@RequestBody User patient) {
+    public ResponseEntity<?> registerPatient(@RequestBody Patient patient) {
         try {
-            usersService.registerPatient(patient);
+            userService.registerPatient(patient);
             return ResponseEntity.ok().build();
         } catch (PatientAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());
@@ -63,9 +64,9 @@ public class UserController {
     }
 
     @PostMapping("/doctor")
-    public ResponseEntity<?> registerDoctor(@RequestBody User doctor) {
+    public ResponseEntity<?> registerDoctor(@RequestBody Doctor doctor) {
         try {
-            usersService.registerDoctor(doctor);
+            userService.registerDoctor(doctor);
             return ResponseEntity.ok().build();
         } catch (DoctorAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.FOUND).body(e.getMessage());

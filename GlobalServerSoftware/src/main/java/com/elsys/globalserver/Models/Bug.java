@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -18,4 +19,17 @@ public class Bug {
     private String title;
     @Column(nullable = false)
     private String description;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bug bug = (Bug) o;
+        return Objects.equals(title, bug.title) && Objects.equals(description, bug.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description);
+    }
 }

@@ -6,6 +6,7 @@ import com.elsys.globalserver.Exceptions.Medicines.MedicineAlreadyExistsExceptio
 import com.elsys.globalserver.Exceptions.Medicines.MedicineNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +14,11 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public class MedicinesService {
+public class MedicineService {
     private final MedicineRepository medicinesRepository;
 
     @Autowired
-    public MedicinesService(MedicineRepository medicinesRepository) {
+    public MedicineService(MedicineRepository medicinesRepository) {
         this.medicinesRepository = medicinesRepository;
     }
 
@@ -27,26 +28,23 @@ public class MedicinesService {
                 .collect(Collectors.toList());
     }
 
-    public void addMedicines(List<Medicine> medicines) throws MedicineAlreadyExistsException {
-        for (Medicine m: medicines){
-            for (Medicine m_repo: medicinesRepository.findAll()){
-                if (m.equals(m_repo))
-                    throw new MedicineAlreadyExistsException();
-            }
-        }
+    public void addMedicine(Medicine medicine) throws MedicineAlreadyExistsException {
+        Optional<Medicine> medicine1 = medicinesRepository.findByName(medicine.getName());
 
-        medicinesRepository.saveAll(medicines);
+        if (medicine1.isPresent())
+            throw new MedicineAlreadyExistsException();
+
+        medicinesRepository.save(medicine);
     }
 
-    public void deleteMedicines(List<String> medicines) throws MedicineNotFoundException{
-        for (String name: medicines){
-            Optional<Medicine> medicine = medicinesRepository.findByName(name);
-            
-            if (medicine.isEmpty())
-                throw new MedicineNotFoundException();
+    @Transactional
+    public void deleteMedicine(String name) throws MedicineNotFoundException{
+        Optional<Medicine> medicine1 = medicinesRepository.findByName(name);
 
-            medicinesRepository.deleteById(medicine.get().getId());
-        }
+        if (medicine1.isEmpty())
+            throw new MedicineNotFoundException();
+
+        medicinesRepository.deleteByName(name);
     }
 
     public void updateMedicine(String name, Medicine medicine) throws MedicineNotFoundException {

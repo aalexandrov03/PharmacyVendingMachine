@@ -1,19 +1,22 @@
 package com.elsys.globalserver.Services;
 
 import com.elsys.globalserver.Controllers.Utils.MedOrder;
+import com.elsys.globalserver.DataAccess.DoctorRepository;
 import com.elsys.globalserver.DataAccess.MedicineRepository;
+import com.elsys.globalserver.DataAccess.PatientRepository;
 import com.elsys.globalserver.DataAccess.PrescriptionRepository;
-import com.elsys.globalserver.DataAccess.UserRepository;
+import com.elsys.globalserver.Models.Doctor;
 import com.elsys.globalserver.Models.Medicine;
+import com.elsys.globalserver.Models.Patient;
 import com.elsys.globalserver.Models.Prescription;
 import com.elsys.globalserver.Exceptions.Medicines.MedicineNotFoundException;
 import com.elsys.globalserver.Exceptions.Prescriptions.PrescriptionNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.DoctorNotFoundException;
 import com.elsys.globalserver.Exceptions.Users.PatientNotFoundException;
-import com.elsys.globalserver.Models.User;
 import com.elsys.globalserver.Services.Utils.PrescriptionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,23 +25,31 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public class PrescriptionsService {
+@Transactional
+public class PrescriptionService {
     private final PrescriptionRepository prescriptionsRepository;
-    private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
     private final MedicineRepository medicinesRepository;
 
     @Autowired
-    public PrescriptionsService(PrescriptionRepository prescriptionsRepository,
-                                UserRepository userRepository,
-                                MedicineRepository medicinesRepository) {
+    public PrescriptionService(PrescriptionRepository prescriptionsRepository,
+                               PatientRepository patientRepository,
+                               DoctorRepository doctorRepository,
+                               MedicineRepository medicinesRepository) {
         this.prescriptionsRepository = prescriptionsRepository;
-        this.userRepository = userRepository;
         this.medicinesRepository = medicinesRepository;
+        this.patientRepository = patientRepository;
+        this.doctorRepository = doctorRepository;
     }
 
     public void addPrescription(String patient_email, String doctor_email, List<MedOrder> medicines)
             throws MedicineNotFoundException, PatientNotFoundException {
-        Optional<User> patient = userRepository.findUserByEmail(patient_email);
+        Optional<Patient> patient = patientRepository.findByEmail(patient_email);
+
+        if (patient.isEmpty())
+            throw new PatientNotFoundException();
+
         List<Medicine> meds = new ArrayList<>();
 
         for (MedOrder medOrder : medicines) {
@@ -50,9 +61,6 @@ public class PrescriptionsService {
             for (int i = 0; i < medOrder.getAmount(); i++)
                 meds.add(medicine.get());
         }
-
-        if (patient.isEmpty())
-            throw new PatientNotFoundException();
 
         Prescription prescription = new Prescription(doctor_email, patient_email);
         prescription.setMedicines(meds);
@@ -69,7 +77,8 @@ public class PrescriptionsService {
     }
 
     public List<PrescriptionDTO> getDoctorPrescriptions(String email) throws DoctorNotFoundException {
-        Optional<User> doctor = userRepository.findUserByEmail(email);
+        Optional<Doctor> doctor = doctorRepository.findByEmail(email);
+
         if (doctor.isEmpty())
             throw new DoctorNotFoundException();
 
@@ -78,8 +87,9 @@ public class PrescriptionsService {
                 .collect(Collectors.toList());
     }
 
-    public List<PrescriptionDTO> getUserPrescriptions(String email) throws PatientNotFoundException {
-        Optional<User> patient = userRepository.findUserByEmail(email);
+    public List<PrescriptionDTO> getPatientPrescriptions(String email) throws PatientNotFoundException {
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+
         if (patient.isEmpty())
             throw new PatientNotFoundException();
 
@@ -94,33 +104,30 @@ public class PrescriptionsService {
                 .collect(Collectors.toList());
     }
 
-    public void changeValidationPrescriptions(String username, List<Integer> prescription_ids, boolean valid)
+    public void changeValidationPrescriptions(String email, int prescription_id, boolean valid)
             throws PrescriptionNotFoundException{
-        List<Prescription> prescriptions = prescriptionsRepository.findByDoctor(username);
+        List<Prescription> prescriptions = prescriptionsRepository.findByDoctor(email);
 
-        for (int prescription_id : prescription_ids) {
-            boolean exists = false;
-            for (Prescription p : prescriptions) {
-                if (prescription_id == p.getId()) {
-                    exists = true;
-                    p.setValid(valid);
-                    prescriptionsRepository.save(p);
-                    break;
-                }
+        boolean exists = false;
+        for (Prescription prescription : prescriptions){
+            if (prescription.getId() == prescription_id){
+                exists = true;
+                prescription.setValid(valid);
+                prescriptionsRepository.save(prescription);
+                break;
             }
-
-            if (!exists)
-                throw new PrescriptionNotFoundException();
         }
+
+        if (!exists)
+            throw new PrescriptionNotFoundException();
     }
 
-    public void deletePrescriptions(List<Integer> prescription_ids) throws PrescriptionNotFoundException {
-        for (int prescription_id : prescription_ids) {
-            Optional<Prescription> prescription = prescriptionsRepository.findById(prescription_id);
+    public void deletePrescription(int prescription_id) throws PrescriptionNotFoundException {
+        Optional<Prescription> prescription = prescriptionsRepository.findById(prescription_id);
 
-            if (prescription.isEmpty())
-                throw new PrescriptionNotFoundException();
-        }
-        prescriptionsRepository.deleteAllById(prescription_ids);
+        if (prescription.isEmpty())
+            throw new PrescriptionNotFoundException();
+
+        prescriptionsRepository.deleteById(prescription_id);
     }
 }

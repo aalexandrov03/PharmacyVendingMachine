@@ -2,42 +2,40 @@ package com.elsys.globalserver.Controllers;
 
 import com.elsys.globalserver.Models.Bug;
 import com.elsys.globalserver.Exceptions.Bugs.BugNotFoundException;
-import com.elsys.globalserver.Services.BugsService;
+import com.elsys.globalserver.Services.BugService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/bugs")
 public class BugController {
-    private final BugsService bugsService;
+    private final BugService bugService;
 
     @Autowired
-    public BugController(BugsService bugsService) {
-        this.bugsService = bugsService;
+    public BugController(BugService bugService) {
+        this.bugService = bugService;
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getBugs(){
-        return ResponseEntity.ok().body(bugsService.getBugs());
+        return ResponseEntity.ok().body(bugService.getBugs());
     }
 
     @PostMapping()
-    @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_DOCTOR', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_PATIENT', 'ROLE_DOCTOR')")
     public ResponseEntity<?> reportBug(@RequestBody Bug bug){
-        bugsService.reportBug(bug);
+        bugService.reportBug(bug);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> clearBugs(@RequestBody List<Integer> bug_ids){
+    public ResponseEntity<?> clearBug(@RequestParam int id){
         try{
-            bugsService.clearBugs(bug_ids);
+            bugService.clearBug(id);
             return ResponseEntity.ok().build();
         } catch(BugNotFoundException e){
             return ResponseEntity.status(404).body(e.getMessage());

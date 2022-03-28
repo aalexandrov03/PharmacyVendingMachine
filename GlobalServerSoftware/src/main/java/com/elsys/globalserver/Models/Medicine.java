@@ -24,7 +24,7 @@ public class Medicine {
     private String name;
     @Column(nullable = false)
     private boolean needsPrescription;
-    @ManyToMany(mappedBy = "medicines")
+    @ManyToMany(mappedBy = "medicines", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Prescription> prescriptions = new ArrayList<>();
 

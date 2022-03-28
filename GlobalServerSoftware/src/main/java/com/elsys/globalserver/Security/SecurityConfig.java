@@ -41,9 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(getDaoAuthenticationProvider());
         auth.inMemoryAuthentication()
-                .withUser("admin@gmail.com")
+                .withUser("admin")
                 .roles("ADMIN")
                 .password(passwordEncoder.encode("admin"))
                 .credentialsExpired(false)
@@ -58,6 +57,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .accountLocked(false)
                 .accountExpired(false)
                 .disabled(false);
+
+        auth.authenticationProvider(getDaoAuthenticationProvider());
     }
 
     @Bean
