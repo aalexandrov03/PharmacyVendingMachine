@@ -72,9 +72,9 @@ class MedicineControllerTest {
         medicine.setName("Paracetamol");
         medicine.setNeedsPrescription(true);
 
-        ResponseEntity<Medicine> response = restTemplate
-                .withBasicAuth("admin", "admin")
-                .postForEntity("http://localhost:" + port + "/medicines", medicine, Medicine.class);
+        restTemplate
+            .withBasicAuth("admin", "admin")
+            .postForEntity("http://localhost:" + port + "/medicines", medicine, Medicine.class);
 
         List<Medicine> actualMedicines = StreamSupport.stream(
                 medicineRepository.findAll().spliterator(), false

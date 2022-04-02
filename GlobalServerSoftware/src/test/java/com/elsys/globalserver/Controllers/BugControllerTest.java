@@ -90,12 +90,12 @@ class BugControllerTest {
         bug.setTitle("new bug");
         bug.setDescription("this is a new bug");
 
-        ResponseEntity<Bug> response = restTemplate
-                .withBasicAuth("vpal@gmail.com", "pass")
-                .postForEntity("http://localhost:" + port + "/bugs", bug, Bug.class);
+        restTemplate
+            .withBasicAuth("vpal@gmail.com", "pass")
+            .postForEntity("http://localhost:" + port + "/bugs", bug, Bug.class);
 
         List<Bug> actualBugs = StreamSupport.stream(bugRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
 
         assertTrue(actualBugs.contains(bug));
     }
