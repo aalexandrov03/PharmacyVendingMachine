@@ -1,6 +1,7 @@
 package com.elsys.machine.Services;
 
 import com.elsys.machine.DataAccess.ConfigurationRepository;
+import com.elsys.machine.DataAccess.MappingRepository;
 import com.elsys.machine.DataAccess.MedicinesRepository;
 import com.elsys.machine.Models.Configuration;
 import com.elsys.machine.Models.Mapping;
@@ -9,14 +10,15 @@ import com.elsys.machine.Models.RouterSettings;
 import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,17 +29,20 @@ import static org.mockito.ArgumentMatchers.anyString;
 class ConfigurationServiceTest {
     private ConfigurationService configurationService;
     private ConfigurationRepository configurationRepository;
-
+    private MappingRepository mappingRepository;
+    private List<Mapping> mappings;
     private Configuration testConfiguration;
 
     @BeforeAll
     void setUpBeforeAll() throws IOException {
         MedicinesRepository medicinesRepository = Mockito.mock(MedicinesRepository.class);
         configurationRepository = Mockito.mock(ConfigurationRepository.class);
+        mappingRepository = Mockito.mock(MappingRepository.class);
 
         configurationService = new ConfigurationService(
                 medicinesRepository,
-                configurationRepository
+                configurationRepository,
+                mappingRepository
         );
 
         Medicine medicine = new Medicine();
@@ -51,6 +56,9 @@ class ConfigurationServiceTest {
         mapping.setSlotID(1);
         mapping.setMedicineName("Analgin");
 
+        mappings = new ArrayList<>();
+        mappings.add(mapping);
+
         RouterSettings routerSettings = new RouterSettings();
         routerSettings.setColumns(7);
         routerSettings.setRows(2);
@@ -62,12 +70,16 @@ class ConfigurationServiceTest {
         testConfiguration = new Configuration();
         testConfiguration.setStatus(true);
         testConfiguration.setUpdate_date(LocalDateTime.now().toString());
-        testConfiguration.setMapping(List.of(mapping));
         testConfiguration.setSettings(routerSettings);
         testConfiguration.setServer_address(Base64.getEncoder().encodeToString("address".getBytes()));
 
         Mockito.when(configurationRepository.read(anyString())).thenReturn(testConfiguration);
-
+        Mockito.when(mappingRepository.findAll()).thenReturn(mappings);
+        Mockito.when(mappingRepository.save(any(Mapping.class))).then((mock) -> {
+            //System.out.println(().getMedicineName());
+            mappings.add(mock.getArgument(0));
+            return null;
+        });
         Mockito.when(medicinesRepository.findAll()).thenReturn(List.of(medicine));
         Mockito.when(medicinesRepository.findMedicineByName(medicine.getName())).thenReturn(Optional.of(medicine));
     }
@@ -94,25 +106,24 @@ class ConfigurationServiceTest {
 
     @Test
     @Order(3)
-    void getMapping() throws IOException {
+    void getMapping() {
         List<Mapping> mapping = configurationService.getMapping();
-        assertTrue(mapping.containsAll(testConfiguration.getMapping()));
+        List<Mapping> expected = StreamSupport.stream(
+                mappingRepository.findAll().spliterator(), false
+        ).collect(Collectors.toList());
+
+        assertTrue(mapping.containsAll(expected));
     }
 
     @Test
     @Order(4)
     void setMapping() throws IOException {
-        ArgumentCaptor<Configuration> configurationArgumentCaptor
-                = ArgumentCaptor.forClass(Configuration.class);
-
         Mapping testMapping1 = new Mapping();
         testMapping1.setMedicineName("Benalgin");
         testMapping1.setSlotID(2);
 
         try{
             configurationService.setMapping(List.of(testMapping1));
-            Mockito.verify(configurationRepository, Mockito.times(2))
-                    .write(anyString(), configurationArgumentCaptor.capture());
             fail();
         } catch (IllegalArgumentException ignored){}
 
@@ -121,11 +132,8 @@ class ConfigurationServiceTest {
         testMapping2.setMedicineName("Analgin");
 
         configurationService.setMapping(List.of(testMapping2));
-        Mockito.verify(configurationRepository, Mockito.times(2))
-                .write(anyString(), configurationArgumentCaptor.capture());
 
-        assertTrue(configurationArgumentCaptor.getValue()
-                .getMapping().containsAll(testConfiguration.getMapping()));
+        assertTrue(mappings.contains(testMapping2));
     }
 
     @Test
@@ -155,7 +163,7 @@ class ConfigurationServiceTest {
         routerSettings1.setStepsPerRev(6300);
 
         configurationService.setRouterSettings(routerSettings1);
-        Mockito.verify(configurationRepository, Mockito.times(3))
+        Mockito.verify(configurationRepository, Mockito.times(2))
                 .write(anyString(), configurationArgumentCaptor.capture());
 
         assertEquals(routerSettings1, configurationArgumentCaptor.getValue().getSettings());
@@ -170,7 +178,7 @@ class ConfigurationServiceTest {
 
         try{
             configurationService.setRouterSettings(routerSettings2);
-            Mockito.verify(configurationRepository, Mockito.times(3))
+            Mockito.verify(configurationRepository, Mockito.times(2))
                     .write(anyString(), configurationArgumentCaptor.capture());
             fail();
         } catch (IllegalArgumentException ignored){}
@@ -191,7 +199,7 @@ class ConfigurationServiceTest {
                 = ArgumentCaptor.forClass(Configuration.class);
 
         configurationService.setServerAddress(address);
-        Mockito.verify(configurationRepository, Mockito.times(4))
+        Mockito.verify(configurationRepository, Mockito.times(3))
                 .write(anyString(), configurationArgumentCaptor.capture());
 
         assertEquals(Base64.getEncoder().encodeToString(address.getBytes())

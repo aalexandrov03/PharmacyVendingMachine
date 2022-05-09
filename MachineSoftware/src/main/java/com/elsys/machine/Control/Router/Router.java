@@ -18,9 +18,9 @@ public class Router {
     private final long STEPS_ROW_CONST;
     private final long STEPS_SLOT_CONST;
 
-    public Router(Configuration configuration) {
-        this.settings = configuration.getSettings();
-        this.map = configuration.getMapping();
+    public Router(RouterSettings routerSettings, List<Mapping> mappings) {
+        this.settings = routerSettings;
+        this.map = mappings;
         STEPS_ROW_CONST = (long) settings.getDistRows() * settings.getStepsPerRev() / settings.getDistPerRev();
         STEPS_SLOT_CONST = (long) settings.getDistSlots() * settings.getStepsPerRev() / settings.getDistPerRev();
     }

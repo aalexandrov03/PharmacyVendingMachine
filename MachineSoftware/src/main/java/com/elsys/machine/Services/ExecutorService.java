@@ -76,10 +76,16 @@ public class ExecutorService {
             if (!configurationService.getStatus())
                 return SHUTDOWN;
 
-            Router router = new Router(configurationService.getConfiguration());
+            Router router = new Router(
+                    configurationService.getRouterSettings(),
+                    configurationService.getMapping()
+            );
+
             List<RouteNode> route = router.createRoute(prescription.getMedicines());
 
             synchronized (Executor.getExecutor()) {
+//                for (RouteNode r : route)
+//                    System.out.println(r);
                 Executor.getExecutor().execute(route);
             }
 

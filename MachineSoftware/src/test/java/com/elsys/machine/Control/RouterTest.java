@@ -58,8 +58,7 @@ public class RouterTest {
 
         Configuration configuration = new Configuration();
         configuration.setSettings(settings);
-        configuration.setMapping(mappings);
-        router = new Router(configuration);
+        router = new Router(settings, mappings);
 
         expectedRoute = new LinkedList<>(List.of(
                 new RouteNode(Motor.Z, 630, Direction.UP),

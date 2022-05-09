@@ -26,4 +26,11 @@ public class RouteNode {
     public int hashCode() {
         return Objects.hash(id, steps, dir);
     }
+
+    @Override
+    public String toString() {
+        return "Motor ID: " + id + "\n"
+                + "Steps: " + steps + "\n"
+                + "Direction: " + dir.name() + "\n";
+    }
 }
