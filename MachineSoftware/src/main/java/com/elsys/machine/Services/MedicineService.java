@@ -1,6 +1,8 @@
 package com.elsys.machine.Services;
 
 import com.elsys.machine.DataAccess.MedicinesRepository;
+import com.elsys.machine.Exceptions.MedicineAlreadyExistsException;
+import com.elsys.machine.Exceptions.MedicineNotFoundException;
 import com.elsys.machine.Models.Medicine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,31 +41,31 @@ public class MedicineService {
                         .collect(Collectors.toList());
 
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException(option + " is not a valid argument!");
         }
     }
 
-    public void addMedicine(Medicine medicine) throws Exception {
+    public void addMedicine(Medicine medicine) throws MedicineAlreadyExistsException {
         if (medicinesRepository.findMedicineByName(medicine.getName()).isPresent())
-            throw new Exception(medicine.getName() + " already exists!");
+            throw new MedicineAlreadyExistsException(medicine.getName());
 
         medicinesRepository.save(medicine);
     }
 
-    public void deleteMedicine(String medicineName) throws Exception {
+    public void deleteMedicine(String medicineName) throws MedicineNotFoundException {
         Optional<Medicine> medicine = medicinesRepository.findMedicineByName(medicineName);
 
         if (medicine.isEmpty())
-            throw new Exception(medicineName + " not found!");
+            throw new MedicineNotFoundException(medicineName);
 
         medicinesRepository.deleteById(medicine.get().getId());
     }
 
-    public void updateMedicine(String medicineName, Medicine newMedicine) throws Exception {
+    public void updateMedicine(String medicineName, Medicine newMedicine) throws MedicineNotFoundException {
         Optional<Medicine> medicine = medicinesRepository.findMedicineByName(medicineName);
 
         if (medicine.isEmpty())
-            throw new Exception(medicineName + " not found!");
+            throw new MedicineNotFoundException(medicineName);
 
         medicine.get().setMedicine(newMedicine);
         medicinesRepository.save(medicine.get());

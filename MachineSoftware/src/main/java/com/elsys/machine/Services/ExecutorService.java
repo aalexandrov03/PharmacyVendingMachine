@@ -46,7 +46,8 @@ public class ExecutorService {
         return Optional.of(new Gson().fromJson(response.getBody().toString(), Prescription.class));
     }
 
-    private ValidationResult checkPrescription(Prescription prescription, boolean fetch) {
+    private ValidationResult checkPrescription(Prescription prescription, boolean fetch)
+            throws IllegalArgumentException {
         List<Medicine> medicines = medicineService.getMedicines(fetch ? "both" : "no");
 
         if (!prescription.isValid())
@@ -67,7 +68,8 @@ public class ExecutorService {
             return NOT_AVAILABLE;
     }
 
-    public ValidationResult executePrescription(Prescription prescription, boolean fetch) throws Exception {
+    public ValidationResult executePrescription(Prescription prescription, boolean fetch)
+            throws IOException, IllegalArgumentException {
         ValidationResult status = checkPrescription(prescription, fetch);
 
         if (status == OK) {
