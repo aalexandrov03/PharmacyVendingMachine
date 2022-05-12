@@ -3,12 +3,14 @@ package com.elsys.machine.Control.Router;
 import com.elsys.machine.Control.Utils.Direction;
 import com.elsys.machine.Control.Utils.Motor;
 import com.elsys.machine.Control.Utils.RouteNode;
-import com.elsys.machine.Models.Configuration;
 import com.elsys.machine.Models.Mapping;
 import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Models.RouterSettings;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Router {
@@ -25,7 +27,7 @@ public class Router {
         STEPS_SLOT_CONST = (long) settings.getDistSlots() * settings.getStepsPerRev() / settings.getDistPerRev();
     }
 
-    public List<RouteNode> createRoute(Set<Medicine> query) {
+    public List<RouteNode> createRoute(Map<Medicine, Integer> query) {
         List<Long> medicines = toIdList(query);
 
         for (int i = 0; i < medicines.size() - 1; i++)
@@ -36,10 +38,10 @@ public class Router {
                 .collect(Collectors.toList());
     }
 
-    private List<Long> toIdList(Set<Medicine> order) {
+    private List<Long> toIdList(Map<Medicine, Integer> order) {
         List<Long> medicines = new ArrayList<>();
 
-        for (Medicine medicine : order) {
+        for (Medicine medicine : order.keySet()){
             Optional<Mapping> m = map.stream()
                     .filter(mapping -> mapping.getMedicineName().equals(medicine.getName()))
                     .findFirst();
@@ -49,8 +51,9 @@ public class Router {
                 break;
             }
 
-            for (int i = 0; i < medicine.getAmount(); i++)
+            for (int i = 0; i < order.get(medicine); i ++) {
                 medicines.add(m.get().getSlotID());
+            }
         }
 
         medicines.add(0, (long) -1);
@@ -68,7 +71,7 @@ public class Router {
     }
 
     private long getRow(long id) {
-        return id / settings.getColumns() + 1;
+        return id / (settings.getColumns() + 1) + 1;
     }
 
     private long getRowLastId(long row) {
@@ -85,7 +88,7 @@ public class Router {
     }
 
     private long calcStepsFromLastID(long id) {
-        return (getRow(id) * settings.getColumns() - 1) - id * STEPS_SLOT_CONST;
+        return (getRow(id) * settings.getColumns() - id) * STEPS_SLOT_CONST;
     }
 
     private void travel(long curr_id, long next_id) {
