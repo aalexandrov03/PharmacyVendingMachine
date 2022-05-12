@@ -131,6 +131,7 @@ class ConfigurationServiceTest {
         testMapping2.setSlotID(5);
         testMapping2.setMedicineName("Analgin");
 
+        mappings.clear();
         configurationService.setMapping(List.of(testMapping2));
 
         assertTrue(mappings.contains(testMapping2));
