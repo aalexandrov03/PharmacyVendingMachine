@@ -17,7 +17,7 @@ public class Bug {
     private int id;
     @Column(nullable = false)
     private String title;
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String description;
 
     @Override
