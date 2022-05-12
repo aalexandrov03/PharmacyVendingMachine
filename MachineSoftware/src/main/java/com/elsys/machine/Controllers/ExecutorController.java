@@ -11,9 +11,13 @@ import com.elsys.machine.Services.Utils.ValidationResultDTO;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,18 +38,21 @@ public class ExecutorController {
     @PostMapping("/order")
     public ResponseEntity<?> executeOrder(@RequestBody Set<MedOrder> order) {
         try {
-            Set<Medicine> medicineSet = order.stream().map(medOrder -> {
-                Optional<Medicine> medicine = medicinesRepository
-                        .findMedicineByName(medOrder.getName());
+            Map<Medicine, Integer> medicineMap = order.stream().collect(Collectors.toMap(
+                    medOrder -> {
+                        Optional<Medicine> medicine = medicinesRepository
+                                .findMedicineByName(medOrder.getName());
 
-                if (medicine.isEmpty())
-                    throw new MedicineNotFoundException(medOrder.getName());
+                        if (medicine.isEmpty())
+                            throw new MedicineNotFoundException(medOrder.getName());
 
-                return medicine.get();
-            }).collect(Collectors.toSet());
+                        return medicine.get();
+                    },
+                    MedOrder::getAmount
+            ));
 
             ValidationResult result = executorService.executePrescription(
-                    new Prescription(true, medicineSet), false
+                    new Prescription(true, medicineMap), false
             );
             return ResponseEntity.ok().body(
                     new ValidationResultDTO(result.getStatus(), result.getMessage())

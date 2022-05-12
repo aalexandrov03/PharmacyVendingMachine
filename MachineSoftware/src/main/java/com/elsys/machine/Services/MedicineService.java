@@ -45,6 +45,15 @@ public class MedicineService {
         }
     }
 
+    public Medicine getMedicineByName(String name) throws MedicineNotFoundException{
+        Optional<Medicine> medicine = medicinesRepository.findMedicineByName(name);
+
+        if (medicine.isEmpty())
+            throw new MedicineNotFoundException(name);
+
+        return medicine.get();
+    }
+
     public void addMedicine(Medicine medicine) throws MedicineAlreadyExistsException {
         if (medicinesRepository.findMedicineByName(medicine.getName()).isPresent())
             throw new MedicineAlreadyExistsException(medicine.getName());

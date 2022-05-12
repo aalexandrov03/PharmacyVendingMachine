@@ -137,7 +137,7 @@ public class ConfigurationService {
         int ids = routerSettings.getColumns() * routerSettings.getRows();
 
         for (Mapping mapping : mappings) {
-            if (mapping.getSlotID() < 0 || mapping.getSlotID() > ids)
+            if (mapping.getSlotID() < 1 || mapping.getSlotID() > ids)
                 return false;
 
             if (!medNames.contains(mapping.getMedicineName()))
