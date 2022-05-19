@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elsys.machine.Services.Utils.ValidationResult.*;
@@ -102,9 +101,7 @@ public class ExecutorService {
             List<RouteNode> route = router.createRoute(prescription.getMedicines());
 
             synchronized (Executor.getExecutor()) {
-                for (RouteNode r : route)
-                    System.out.println(r);
-                //Executor.getExecutor().execute(route);
+                Executor.getExecutor().execute(route);
             }
 
             Map<Medicine, Integer> medicines = prescription.getMedicines();

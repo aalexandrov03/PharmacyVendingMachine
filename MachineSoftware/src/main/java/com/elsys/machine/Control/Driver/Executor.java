@@ -1,10 +1,10 @@
 package com.elsys.machine.Control.Driver;
 
 import com.elsys.machine.Control.Utils.RouteNode;
-import com.elsys.machine.Control.Utils.Direction;
-import com.elsys.machine.Control.Utils.Motor;
-import org.python.util.PythonInterpreter;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Executor {
@@ -20,21 +20,28 @@ public class Executor {
         return executor;
     }
 
-    public void execute(List<RouteNode> route) {
+    public void execute(List<RouteNode> route) throws IOException {
+        List<String> command = new ArrayList<>();
+        command.add("python3");
+        command.add("/home/sasho/machine/mcontrol.py");
+
         for (RouteNode node : route) {
-            String motor = "Z", dir = "0";
+            command.add(String.valueOf(node.getId()));
+            command.add(String.valueOf(node.getSteps()));
+            command.add(String.valueOf(node.getDir()));
+        }
 
-            if (node.getDir() == Direction.UP || node.getDir() == Direction.RIGHT)
-                dir = "1";
+        ProcessBuilder executionBuilder =
+                new ProcessBuilder(command);
+        executionBuilder.redirectErrorStream(true);
 
-            if (node.getId() == Motor.X)
-                motor = "X";
+        Process executionProcess = executionBuilder.start();
 
-            String[] args = {"mcontrol.py", "execute", motor, String.valueOf(node.getSteps()), dir};
-            PythonInterpreter.initialize(System.getProperties(), System.getProperties(), args);
-            PythonInterpreter interpreter = new PythonInterpreter();
-            interpreter.execfile(getClass().getResourceAsStream("/mcontrol.py"));
-            interpreter.close();
+        try {
+            executionProcess.waitFor();
+        } catch (InterruptedException e) {
+            throw new IOException("Something unexpected happened when executing!");
         }
     }
 }
+

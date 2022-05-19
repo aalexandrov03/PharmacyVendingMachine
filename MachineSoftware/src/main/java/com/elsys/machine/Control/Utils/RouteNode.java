@@ -29,8 +29,6 @@ public class RouteNode {
 
     @Override
     public String toString() {
-        return "Motor ID: " + id + "\n"
-                + "Steps: " + steps + "\n"
-                + "Direction: " + dir.name() + "\n";
+        return id.name() + " " + steps + " " + dir.name();
     }
 }

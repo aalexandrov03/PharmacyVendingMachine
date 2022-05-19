@@ -8,12 +8,9 @@ import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.python.modules.posix.PosixModule.times;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

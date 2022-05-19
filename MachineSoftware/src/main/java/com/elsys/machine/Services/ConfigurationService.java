@@ -30,7 +30,7 @@ public class ConfigurationService {
         this.medicinesRepository = medicinesRepository;
         this.configurationRepository = configurationRepository;
         this.mappingRepository = mappingRepository;
-        this.configFileName = "configuration.yaml";
+        this.configFileName = "/home/sasho/machine/configuration.yaml";
     }
 
     public boolean getStatus() throws IOException {
@@ -114,13 +114,9 @@ public class ConfigurationService {
                 routerSettings.getStepsPerRev() >= 0 && routerSettings.getDistPerRev() >= 0;
     }
 
-    private boolean checkMapping(List<Mapping> mappings) {
+    private boolean checkMapping(List<Mapping> mappings) throws IOException{
         RouterSettings routerSettings;
-        try{
-            routerSettings = getRouterSettings();
-        } catch (IOException e){
-            return false;
-        }
+        routerSettings = getRouterSettings();
 
         List<String> medNames = StreamSupport.stream(
                 medicinesRepository.findAll().spliterator(), false

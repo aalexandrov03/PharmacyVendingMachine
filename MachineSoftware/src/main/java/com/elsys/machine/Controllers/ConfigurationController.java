@@ -57,7 +57,7 @@ public class ConfigurationController {
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500).body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }

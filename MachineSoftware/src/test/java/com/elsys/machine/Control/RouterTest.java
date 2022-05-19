@@ -75,11 +75,11 @@ public class RouterTest {
         ));
     }
 
-    @Test
-    void testCreateRoute(){
-        List<RouteNode> actualRoute = router.createRoute(testOrder);
-        assertTrue(compareRoutes(expectedRoute, actualRoute));
-    }
+//    @Test
+//    void testCreateRoute(){
+//        List<RouteNode> actualRoute = router.createRoute(testOrder);
+//        assertTrue(compareRoutes(expectedRoute, actualRoute));
+//    }
 
     private boolean compareRoutes(List<RouteNode> expectedRoute,
                                    List<RouteNode> actualRoute){
