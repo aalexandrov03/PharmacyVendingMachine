@@ -46,7 +46,7 @@ def fetch_route(args):
     route = []
 
     offset = 1
-    for i in range(0, len(args)/3):
+    for i in range(0, int(len(args)/3)):
         route.append([args[offset], int(args[offset + 1]), args[offset + 2]])
         offset = offset + 3
 
