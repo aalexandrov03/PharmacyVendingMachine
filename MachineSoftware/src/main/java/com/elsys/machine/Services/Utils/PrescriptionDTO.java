@@ -1,19 +1,17 @@
-package com.elsys.machine.Controllers.Utils;
+package com.elsys.machine.Services.Utils;
 
-import com.elsys.machine.Models.Medicine;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Map;
 import java.util.Set;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @AllArgsConstructor
-public class Prescription {
+public class PrescriptionDTO {
     private boolean valid;
-    private Map<Medicine, Integer> medicines;
+    private Set<MedicineQuantity> medicines;
 }

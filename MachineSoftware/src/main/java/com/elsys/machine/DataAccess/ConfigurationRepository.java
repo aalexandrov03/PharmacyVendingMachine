@@ -14,11 +14,11 @@ import java.io.IOException;
 public class ConfigurationRepository {
     private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-    public void write(String filename, Configuration configuration) throws IOException {
-        mapper.writeValue(new File("src/main/resources/" + filename), configuration);
+    public synchronized void write(String filename, Configuration configuration) throws IOException {
+        mapper.writeValue(new File(filename), configuration);
     }
 
     public Configuration read(String filename) throws IOException {
-        return mapper.readValue(new File("src/main/resources/" + filename), Configuration.class);
+        return mapper.readValue(new File(filename), Configuration.class);
     }
 }

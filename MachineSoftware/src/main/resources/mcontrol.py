@@ -1,47 +1,68 @@
-from gpiozero import DigitalOutputDevice
+import RPi.GPIO as GPIO
 from time import sleep
 import sys
 
 
 class Motor:
     def __init__(self, DIR_PIN, PUL_PIN, ENA_PIN):
-        self.__DIR_PIN = DigitalOutputDevice(DIR_PIN, initial_value=True, active_high=False)
-        self.__PUL_PIN = DigitalOutputDevice(PUL_PIN, initial_value=True, active_high=False)
-        self.__ENA_PIN = DigitalOutputDevice(ENA_PIN, initial_value=True, active_high=False)
-        self.__PUL_T = 100
-        self.disable()
+        GPIO.setmode(GPIO.BCM)
 
-    def setSpeed(self, speed):
-        self.__PUL_T = 200 - speed
+        self.__DIR_PIN = DIR_PIN
+        self.__PUL_PIN = PUL_PIN
+        self.__ENA_PIN = ENA_PIN
+        self.__PUL_T = 100
+
+        GPIO.setup(DIR_PIN, GPIO.OUT)
+        GPIO.setup(PUL_PIN, GPIO.OUT)
+        GPIO.setup(ENA_PIN, GPIO.OUT)
+
+        GPIO.output(DIR_PIN, False)
+        GPIO.output(PUL_PIN, False)
+        GPIO.output(ENA_PIN, False)
+
+        self.enable()
 
     def rotate(self, steps, dir):
-        if dir:
-            self.__DIR_PIN.on()
+        if dir == "LEFT" or dir == "DOWN":
+            GPIO.output(self.__DIR_PIN, True)
         else:
-            self.__DIR_PIN.off()
+            GPIO.output(self.__DIR_PIN, False)
 
         for step in range(0, steps):
-            self.__PUL_PIN.on()
+            GPIO.output(self.__PUL_PIN, False)
             sleep(self.__PUL_T / 1000000)
-            self.__PUL_PIN.off()
+            GPIO.output(self.__PUL_PIN, True)
             sleep(self.__PUL_T / 1000000)
 
     def enable(self):
-        self.__ENA_PIN.on()
+        GPIO.output(self.__ENA_PIN, True)
+
 
     def disable(self):
-        self.__ENA_PIN.off()
+        GPIO.output(self.__ENA_PIN, False)
 
+
+def fetch_route(args):
+    route = []
+
+    offset = 1
+    for i in range(0, int(len(args)/3)):
+        route.append([args[offset], int(args[offset + 1]), args[offset + 2]])
+        offset = offset + 3
+
+    return route
 
 if __name__ == '__main__':
     motorX = Motor(23, 24, 25)
     motorZ = Motor(26, 27, 22)
 
-    if sys.argv[1] == 'execute':
-        motor = None
-        if sys.argv[2] == 'X':
-            motor = motorX
-        elif sys.argv[2] == 'Z':
+    route = fetch_route(sys.argv)
+
+    for i in range(0, len(route)):
+        motor = motorX
+        if route[i][0] == 'Z':
             motor = motorZ
 
-        motor.rotate(int(sys.argv[3]), int(sys.argv[4]))
+        motor.rotate(route[i][1], route[i][2])
+
+    GPIO.cleanup()

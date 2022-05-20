@@ -1,6 +1,7 @@
 package com.elsys.machine.Services;
 
 import com.elsys.machine.DataAccess.ConfigurationRepository;
+import com.elsys.machine.DataAccess.MappingRepository;
 import com.elsys.machine.DataAccess.MedicinesRepository;
 import com.elsys.machine.Models.Configuration;
 import com.elsys.machine.Models.Mapping;
@@ -19,14 +20,17 @@ import java.util.stream.StreamSupport;
 public class ConfigurationService {
     private final MedicinesRepository medicinesRepository;
     private final ConfigurationRepository configurationRepository;
+    private final MappingRepository mappingRepository;
     private final String configFileName;
 
     @Autowired
     public ConfigurationService(MedicinesRepository medicinesRepository,
-                                ConfigurationRepository configurationRepository) {
+                                ConfigurationRepository configurationRepository,
+                                MappingRepository mappingRepository) {
         this.medicinesRepository = medicinesRepository;
         this.configurationRepository = configurationRepository;
-        this.configFileName = "configuration.yaml";
+        this.mappingRepository = mappingRepository;
+        this.configFileName = "/home/sasho/machine/configuration.yaml";
     }
 
     public boolean getStatus() throws IOException {
@@ -40,18 +44,25 @@ public class ConfigurationService {
         configurationRepository.write(configFileName, configuration);
     }
 
-    public List<Mapping> getMapping() throws IOException {
-        return configurationRepository.read(configFileName).getMapping();
+    public List<Mapping> getMapping() {
+        return StreamSupport.stream(
+                mappingRepository.findAll().spliterator(), false).collect(Collectors.toList());
     }
 
     public void setMapping(List<Mapping> newMapping) throws IOException, IllegalArgumentException {
         if (!checkMapping(newMapping))
             throw new IllegalArgumentException("Invalid mapping provided!");
 
-        Configuration configuration = configurationRepository.read(configFileName);
-        configuration.setMapping(newMapping);
-        configuration.setUpdate_date(LocalDateTime.now().toString());
-        configurationRepository.write(configFileName, configuration);
+        for (Mapping m : newMapping){
+            Optional<Mapping> mapping = mappingRepository.findBySlotID(m.getSlotID());
+
+            if (mapping.isEmpty())
+                mapping = Optional.of(m);
+            else
+                mapping.get().setMedicineName(m.getMedicineName());
+
+            mappingRepository.save(mapping.get());
+        }
     }
 
     public Configuration getConfiguration() throws IOException {
@@ -79,11 +90,8 @@ public class ConfigurationService {
         configurationRepository.write(configFileName, configuration);
     }
 
-    public void deleteRouterMapping() throws IOException {
-        Configuration configuration = configurationRepository.read(configFileName);
-        configuration.setMapping(new ArrayList<>());
-        configuration.setUpdate_date(LocalDateTime.now().toString());
-        configurationRepository.write(configFileName, configuration);
+    public void deleteRouterMapping() {
+        mappingRepository.deleteAll();
     }
 
     public void setServerAddress(String address) throws IOException {
@@ -106,28 +114,38 @@ public class ConfigurationService {
                 routerSettings.getStepsPerRev() >= 0 && routerSettings.getDistPerRev() >= 0;
     }
 
-    private boolean checkMapping(List<Mapping> mappings) {
-        List<Medicine> availableMedicines = StreamSupport.stream(
+    private boolean checkMapping(List<Mapping> mappings) throws IOException{
+        RouterSettings routerSettings;
+        routerSettings = getRouterSettings();
+
+        List<String> medNames = StreamSupport.stream(
                 medicinesRepository.findAll().spliterator(), false
-        ).collect(Collectors.toList());
+        ).map(Medicine::getName).collect(Collectors.toList());
 
-        List<Medicine> mappedMedicines = mappings.stream()
-                .map(mapping -> {
-                    Optional<Medicine> medicine
-                            = medicinesRepository.findMedicineByName(mapping.getMedicineName());
+        List<String> mappingNames = StreamSupport.stream(
+                mappingRepository.findAll().spliterator(), false
+        ).map(Mapping::getMedicineName).collect(Collectors.toList());
 
-                    if (medicine.isEmpty())
-                        return null;
+        List<Long> slotIds = StreamSupport.stream(
+                mappingRepository.findAll().spliterator(), false
+        ).map(Mapping::getSlotID).collect(Collectors.toList());
 
-                    return medicine.get();
-                }).collect(Collectors.toList());
+        int ids = routerSettings.getColumns() * routerSettings.getRows();
 
-        List<Long> invalidSlotIDs = mappings.stream()
-                .map(Mapping::getSlotID).filter(id -> id < 0)
-                .collect(Collectors.toList());
+        for (Mapping mapping : mappings) {
+            if (mapping.getSlotID() < 1 || mapping.getSlotID() > ids)
+                return false;
 
-        return availableMedicines.size() == mappedMedicines.size() &&
-                availableMedicines.containsAll(mappedMedicines) &&
-                invalidSlotIDs.isEmpty();
+            if (!medNames.contains(mapping.getMedicineName()))
+                return false;
+
+            if (mappingNames.contains(mapping.getMedicineName()))
+                return false;
+
+            if (slotIds.contains(mapping.getSlotID()))
+                return false;
+        }
+
+        return true;
     }
 }

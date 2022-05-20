@@ -1,70 +1,89 @@
 package com.elsys.machine.Controllers;
 
+import com.elsys.machine.Controllers.Utils.MedOrder;
 import com.elsys.machine.Controllers.Utils.Prescription;
+import com.elsys.machine.DataAccess.MedicinesRepository;
+import com.elsys.machine.Exceptions.MedicineNotFoundException;
 import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Services.ExecutorService;
 import com.elsys.machine.Services.Utils.ValidationResult;
 import com.elsys.machine.Services.Utils.ValidationResultDTO;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/executor")
 public class ExecutorController {
     private final ExecutorService executorService;
+    private final MedicinesRepository medicinesRepository;
 
     @Autowired
-    public ExecutorController(ExecutorService executorService) {
+    public ExecutorController(ExecutorService executorService,
+                              MedicinesRepository medicinesRepository) {
         this.executorService = executorService;
+        this.medicinesRepository = medicinesRepository;
     }
 
-    @PostMapping()
-    public ResponseEntity<?> executeOrder(@RequestParam boolean fetch,
-                                          @RequestBody(required = false) Set<Medicine> order,
-                                          @RequestParam(required = false) Integer id) {
-        if (fetch) {
-            if (id != null) {
-                try {
-                    Optional<Prescription> prescription = executorService.getPrescriptionFromServer(id);
+    @PostMapping("/order")
+    public ResponseEntity<?> executeOrder(@RequestBody Set<MedOrder> order) {
+        try {
+            Map<Medicine, Integer> medicineMap = order.stream().collect(Collectors.toMap(
+                    medOrder -> {
+                        Optional<Medicine> medicine = medicinesRepository
+                                .findMedicineByName(medOrder.getName());
 
-                    if (prescription.isEmpty())
-                        return ResponseEntity.internalServerError().body("Prescription does not exist in the server!");
+                        if (medicine.isEmpty())
+                            throw new MedicineNotFoundException(medOrder.getName());
 
-                    ValidationResult result = executorService.executePrescription(prescription.get(), true);
-                    return ResponseEntity.ok().body(
-                            new ValidationResultDTO(result.getStatus(), result.getMessage())
-                    );
-                } catch (UnirestException e) {
-                    e.printStackTrace();
-                    return ResponseEntity.internalServerError()
-                            .body("An unexpected error occurred while fetching the prescription!");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return ResponseEntity.internalServerError().body("Unexpected error occurred!");
-                }
-            } else
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } else {
-            if (order != null) {
-                try {
-                    ValidationResult result = executorService.executePrescription(
-                            new Prescription(true, order), false
-                    );
-                    return ResponseEntity.ok().body(
-                            new ValidationResultDTO(result.getStatus(), result.getMessage())
-                    );
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return ResponseEntity.internalServerError().body("Unexpected error occurred!");
-                }
-            } else
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                        return medicine.get();
+                    },
+                    MedOrder::getAmount
+            ));
+
+            ValidationResult result = executorService.executePrescription(
+                    new Prescription(true, medicineMap), false
+            );
+            return ResponseEntity.ok().body(
+                    new ValidationResultDTO(result.getStatus(), result.getMessage())
+            );
+        } catch (MedicineNotFoundException noMedicine){
+            return ResponseEntity.status(404).body(noMedicine.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Unexpected error occurred!");
+        }
+    }
+
+    @PostMapping("/fetch")
+    public ResponseEntity<?> executePrescription(@RequestBody int id) {
+        try {
+            Optional<Prescription> prescription = executorService.getPrescriptionFromServer(id);
+
+            if (prescription.isEmpty())
+                return ResponseEntity.internalServerError().body("Prescription does not exist in the server!");
+
+            ValidationResult result = executorService.executePrescription(prescription.get(), true);
+            return ResponseEntity.ok().body(
+                    new ValidationResultDTO(result.getStatus(), result.getMessage())
+            );
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body("An unexpected error occurred while fetching the prescription!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Unexpected error occurred!");
         }
     }
 }

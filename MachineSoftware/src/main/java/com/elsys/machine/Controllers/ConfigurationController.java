@@ -46,12 +46,7 @@ public class ConfigurationController {
     @GetMapping("/router/mapping")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getMapping() {
-        try {
-            return ResponseEntity.ok().body(configurationService.getMapping());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok().body(configurationService.getMapping());
     }
 
     @PostMapping("/router/mapping")
@@ -62,22 +57,17 @@ public class ConfigurationController {
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500).body(e.getMessage());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/router/mapping")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteRouterMapping() {
-        try {
-            configurationService.deleteRouterMapping();
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Unexpected error occurred!");
-        }
+        configurationService.deleteRouterMapping();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/router/settings")
