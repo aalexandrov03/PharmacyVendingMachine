@@ -87,6 +87,7 @@
     </dependencies>
 
     <build>
+        <finalName>machine</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
