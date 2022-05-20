@@ -4,6 +4,7 @@ import com.elsys.machine.Control.Driver.Executor;
 import com.elsys.machine.Control.Router.Router;
 import com.elsys.machine.Control.Utils.RouteNode;
 import com.elsys.machine.Controllers.Utils.Prescription;
+import com.elsys.machine.Models.Mapping;
 import com.elsys.machine.Models.Medicine;
 import com.elsys.machine.Services.Utils.MedicineQuantity;
 import com.elsys.machine.Services.Utils.PrescriptionDTO;
@@ -79,10 +80,17 @@ public class ExecutorService {
             }
         }
 
-        if (count == prescription.getMedicines().size())
-            return OK;
-        else
+        if (count != prescription.getMedicines().size())
             return NOT_AVAILABLE;
+
+        List<String> medNames = configurationService.getMapping().stream()
+                .map(Mapping::getMedicineName).collect(Collectors.toList());
+
+        for (Medicine medicine : prescription.getMedicines().keySet())
+            if (!medNames.contains(medicine.getName()))
+                return NO_MAPPING;
+
+        return OK;
     }
 
     public ValidationResult executePrescription(Prescription prescription, boolean fetch)
